@@ -30,8 +30,8 @@ export default function PrivacyScreen() {
         <Text className="text-gray-400 text-xs mb-6">Last updated: January 1, 2025</Text>
 
         <Text className="text-gray-600 text-sm leading-relaxed mb-6">
-          Welcome to Gator Exchange. We are committed to protecting your privacy and
-          ensuring a safe experience for all University of Florida students. This Privacy
+          Welcome to CSA Market. We are committed to protecting your privacy and
+          ensuring a safe experience for all Chinese Student Association members. This Privacy
           Policy explains how we collect, use, and protect your information.
         </Text>
 
@@ -44,8 +44,8 @@ export default function PrivacyScreen() {
         </Section>
 
         <Section title="2. How We Use Your Information">
-          We use your information to operate and improve Gator Exchange, including to
-          verify your UF student status, display your profile and listings to other users,
+          We use your information to operate and improve CSA Market, including to
+          verify your CSA membership, display your profile and listings to other users,
           facilitate messaging between buyers and sellers, send you notifications about
           your account and listings, prevent fraud and ensure platform safety, and analyze
           usage patterns to improve the service.
@@ -53,14 +53,14 @@ export default function PrivacyScreen() {
 
         <Section title="3. Information Sharing">
           We do not sell your personal information to third parties. Your profile
-          information (name, bio, listings) is visible to other Gator Exchange users.
+          information (name, bio, listings) is visible to other CSA Market users.
           Your email address and phone number are not publicly displayed — they are only
           used for account verification and, if you choose, shared with users you message.
           We may share information with law enforcement when required by law.
         </Section>
 
         <Section title="4. Authentication">
-          Gator Exchange uses Clerk for authentication. When you sign in, Clerk processes
+          CSA Market uses Clerk for authentication. When you sign in, Clerk processes
           your login credentials securely. We receive a verified user token and basic
           profile information. We do not store your password. Please review Clerk's privacy
           policy at clerk.com for more details on how they handle authentication data.
@@ -74,17 +74,17 @@ export default function PrivacyScreen() {
           accessible via direct URL once uploaded.
         </Section>
 
-        <Section title="6. UF Email Verification">
-          Gator Exchange is designed for University of Florida students with @ufl.edu
-          email addresses. Users with non-UF emails can browse the marketplace but have
-          limited ability to post listings or send messages. We verify email domains
-          but do not independently verify current enrollment status.
+        <Section title="6. Membership Verification">
+          CSA Market is designed for Chinese Student Association members. Non-members
+          can browse the marketplace but have limited ability to post listings or send
+          messages. We verify accounts but do not independently verify current membership
+          status.
         </Section>
 
         <Section title="7. Your Rights">
           You have the right to access, correct, or delete your personal information.
           You can update your profile at any time through the app. To request deletion of
-          your account and associated data, contact us at support@gatorexchange.com. Note
+          your account and associated data, contact us at support@csamarket.app. Note
           that some information may be retained for legal or fraud-prevention purposes.
         </Section>
 
@@ -95,7 +95,7 @@ export default function PrivacyScreen() {
         </Section>
 
         <Section title="9. Children's Privacy">
-          Gator Exchange is intended for university students and is not directed at
+          CSA Market is intended for university students and is not directed at
           children under 13. We do not knowingly collect personal information from
           children under 13. If you believe a child has provided us with personal
           information, please contact us immediately.
@@ -110,9 +110,8 @@ export default function PrivacyScreen() {
         <Section title="11. Contact Us">
           If you have questions about this Privacy Policy or how we handle your data,
           please contact us at:{"\n\n"}
-          Email: support@gatorexchange.com{"\n"}
-          Address: Gainesville, FL 32611{"\n"}
-          University of Florida
+          Email: support@csamarket.app{"\n"}
+          Chinese Student Association · CSA Market
         </Section>
       </ScrollView>
     </SafeAreaView>

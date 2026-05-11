@@ -12,9 +12,9 @@ import { useRouter } from "expo-router";
 import api from "../../service/api";
 
 const workSteps = [
-  { num: "01", title: "Connect", desc: "Sign in with your UFL email." },
-  { num: "02", title: "Discover", desc: "Browse local student listings." },
-  { num: "03", title: "Exchange", desc: "Meet on campus & trade safely." },
+  { num: "01", title: "Connect", desc: "Sign in and join the CSA community." },
+  { num: "02", title: "Discover", desc: "Browse listings from CSA members." },
+  { num: "03", title: "Exchange", desc: "Meet up safely and trade with ease." },
 ];
 
 const categories = [
@@ -78,17 +78,17 @@ export default function HomeScreen() {
           <View className="flex-row items-center gap-2 px-4 py-2 rounded-full bg-gray-50 border border-gray-200 mb-6">
             <View className="w-2 h-2 rounded-full bg-green-500" />
             <Text className="text-xs font-semibold tracking-widest uppercase text-gray-500">
-              Gainesville's Student Network
+              CSA Member Marketplace
             </Text>
           </View>
 
           <Text className="text-5xl font-black text-black tracking-tight text-center">
-            GATOR{"\n"}
-            <Text className="text-neutral-400">EXCHANGE</Text>
+            CSA{"\n"}
+            <Text className="text-neutral-400">MARKET</Text>
           </Text>
 
           <Text className="text-gray-600 text-center mt-4 mb-8 text-base leading-relaxed max-w-xs">
-            The curated marketplace for the University of Florida. Sustainable, verified, and strictly local.
+            The trusted marketplace for the Chinese Student Association. Buy and sell within your community — sustainably and locally.
           </Text>
 
           <View className="flex-row gap-3">
@@ -159,7 +159,7 @@ export default function HomeScreen() {
         {/* Footer */}
         <View className="px-6 py-8 bg-gray-50 border-t border-gray-100">
           <Text className="text-center text-gray-500 text-sm">
-            © 2025 Gator Exchange · University of Florida
+            © 2025 CSA Market · 钟主恩
           </Text>
           <View className="flex-row justify-center gap-4 mt-3">
             <TouchableOpacity onPress={() => router.push("/about")}>
@@ -179,12 +179,12 @@ export default function HomeScreen() {
       <Modal visible={showNonUflDialog} transparent animationType="fade">
         <View className="flex-1 justify-center items-center px-6" style={{ backgroundColor: "rgba(0,0,0,0.4)" }}>
           <View className="bg-white rounded-2xl p-6 w-full">
-            <Text className="text-xl font-bold text-black mb-2">Limited access for non-UF accounts</Text>
-            <Text className="text-gray-600 mb-4">Gator Exchange is built for the University of Florida community.</Text>
+            <Text className="text-xl font-bold text-black mb-2">Limited access for guests</Text>
+            <Text className="text-gray-600 mb-4">CSA Market is built for Chinese Student Association members.</Text>
             <Text className="text-sm text-gray-700 mb-1">You can still:</Text>
             <Text className="text-sm text-gray-600 ml-3">• Browse the marketplace</Text>
             <Text className="text-sm text-gray-600 ml-3 mb-3">• View public profiles and listings</Text>
-            <Text className="text-sm text-gray-700 mb-1">With a non-@ufl.edu email you cannot:</Text>
+            <Text className="text-sm text-gray-700 mb-1">As a non-member you cannot:</Text>
             <Text className="text-sm text-gray-600 ml-3">• Create new listings</Text>
             <Text className="text-sm text-gray-600 ml-3 mb-4">• Send messages to other users</Text>
             <TouchableOpacity onPress={() => setShowNonUflDialog(false)} className="bg-black rounded-xl py-3 items-center">

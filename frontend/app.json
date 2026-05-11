@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "GatorExchangeMobile",
-    "slug": "GatorExchangeMobile",
+    "name": "CSA Market",
+    "slug": "csa-market",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "scheme": "gatorexchange",
+    "scheme": "csamarketplace",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.gatorexchange.mobile",
+      "bundleIdentifier": "com.alexzhong.csamarket",
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSAllowsLocalNetworking": true,
@@ -39,7 +39,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.gatorexchange.mobile"
+      "package": "com.alexzhong.csamarket"
     },
     "web": {
       "bundler": "metro",

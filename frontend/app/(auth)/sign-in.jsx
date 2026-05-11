@@ -43,8 +43,8 @@ export default function SignInPage() {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="bg-white">
         <View className="flex-1 justify-center px-8 py-16">
           <View className="mb-10 items-center">
-            <Text className="text-4xl font-black text-black mb-2">🐊</Text>
-            <Text className="text-3xl font-black text-black">Gator Exchange</Text>
+            <Text className="text-4xl font-black text-black mb-2">🏮</Text>
+            <Text className="text-3xl font-black text-black">CSA Market</Text>
             <Text className="text-gray-500 mt-2">Sign in to your account</Text>
           </View>
 
@@ -53,7 +53,7 @@ export default function SignInPage() {
               <Text className="text-sm font-medium text-gray-700 mb-1">Email</Text>
               <TextInput
                 className="border border-gray-300 rounded-xl px-4 py-3 text-black bg-gray-50"
-                placeholder="you@ufl.edu"
+                placeholder="you@example.com"
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"

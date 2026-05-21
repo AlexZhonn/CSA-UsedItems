@@ -1,14 +1,11 @@
-import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
-import { tokenCache } from "../utils/tokenCache";
+import { AuthProvider, useAuthContext } from "../context/AuthContext";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
 import "../global.css";
 
-const PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
 function InitialLayout() {
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn } = useAuthContext();
   const segments = useSegments();
   const router = useRouter();
 
@@ -25,7 +22,7 @@ function InitialLayout() {
   if (!isLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#fff" }}>
-        <ActivityIndicator size="large" color="#FA4616" />
+        <ActivityIndicator size="large" color="#0021A5" />
       </View>
     );
   }
@@ -40,7 +37,7 @@ function InitialLayout() {
       <Stack.Screen name="terms" />
       <Stack.Screen name="report" />
       <Stack.Screen name="profile-edit" />
-      <Stack.Screen name="profile/[clerkId]" />
+      <Stack.Screen name="profile/[userId]" />
       <Stack.Screen name="edit-item/[itemId]" />
       <Stack.Screen name="mark-sold/[itemId]" />
     </Stack>
@@ -49,8 +46,8 @@ function InitialLayout() {
 
 export default function RootLayout() {
   return (
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY} tokenCache={tokenCache}>
+    <AuthProvider>
       <InitialLayout />
-    </ClerkProvider>
+    </AuthProvider>
   );
 }

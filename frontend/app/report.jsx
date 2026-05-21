@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuthContext } from "../context/AuthContext";
 import {
   View,
   Text,
@@ -28,7 +28,7 @@ const REASONS = [
 export default function ReportScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { getToken } = useAuth();
+  const { getToken } = useAuthContext();
 
   const itemId = params.itemId;
 
@@ -70,11 +70,11 @@ export default function ReportScreen() {
           Report Submitted
         </Text>
         <Text className="text-gray-500 text-center text-sm mb-8">
-          Thank you for helping keep Gator Exchange safe. We'll review your report shortly.
+          Thank you for helping keep CSA Market safe. We'll review your report shortly.
         </Text>
         <TouchableOpacity
           onPress={() => router.back()}
-          className="bg-black rounded-xl px-8 py-4"
+          className="bg-[#0021A5] rounded-xl px-8 py-4"
         >
           <Text className="text-white font-semibold">Go Back</Text>
         </TouchableOpacity>
@@ -114,17 +114,17 @@ export default function ReportScreen() {
                 onPress={() => setSelectedReason(reason)}
                 className={`flex-row items-center px-4 py-3.5 rounded-xl border ${
                   selectedReason === reason
-                    ? "border-black bg-gray-50"
+                    ? "border-[#0021A5] bg-gray-50"
                     : "border-gray-200 bg-white"
                 }`}
               >
                 <View
                   className={`w-5 h-5 rounded-full border-2 mr-3 items-center justify-center ${
-                    selectedReason === reason ? "border-black" : "border-gray-300"
+                    selectedReason === reason ? "border-[#0021A5]" : "border-gray-300"
                   }`}
                 >
                   {selectedReason === reason && (
-                    <View className="w-2.5 h-2.5 rounded-full bg-black" />
+                    <View className="w-2.5 h-2.5 rounded-full bg-[#0021A5]" />
                   )}
                 </View>
                 <Text
@@ -167,7 +167,7 @@ export default function ReportScreen() {
           <TouchableOpacity
             onPress={handleSubmit}
             disabled={loading}
-            className="bg-black rounded-2xl py-4 items-center"
+            className="bg-[#0021A5] rounded-2xl py-4 items-center"
           >
             {loading ? (
               <ActivityIndicator color="white" />

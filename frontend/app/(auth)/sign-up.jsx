@@ -1,4 +1,4 @@
-import { useSignUp } from "@clerk/clerk-expo";
+import { useAuthContext } from "../../context/AuthContext";
 import { useRouter, Link } from "expo-router";
 import { useState } from "react";
 import {
@@ -14,7 +14,7 @@ import {
 } from "react-native";
 
 export default function SignUpPage() {
-  const { signUp, setActive, isLoaded } = useSignUp();
+  const { register, verifyEmail } = useAuthContext();
   const router = useRouter();
 
   const [firstName, setFirstName] = useState("");
@@ -26,28 +26,24 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
-    if (!isLoaded) return;
     setLoading(true);
     try {
-      await signUp.create({ firstName, lastName, emailAddress: email, password });
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      await register(firstName, lastName, email.trim(), password);
       setPendingVerification(true);
     } catch (err) {
-      Alert.alert("Sign Up Failed", err.errors?.[0]?.message || "An error occurred.");
+      Alert.alert("Sign Up Failed", err.message || "An error occurred.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleVerify = async () => {
-    if (!isLoaded) return;
     setLoading(true);
     try {
-      const result = await signUp.attemptEmailAddressVerification({ code });
-      await setActive({ session: result.createdSessionId });
+      await verifyEmail(email.trim(), code.trim());
       router.replace("/(tabs)");
     } catch (err) {
-      Alert.alert("Verification Failed", err.errors?.[0]?.message || "Invalid code.");
+      Alert.alert("Verification Failed", err.message || "Invalid code.");
     } finally {
       setLoading(false);
     }
@@ -69,7 +65,7 @@ export default function SignUpPage() {
             maxLength={6}
           />
 
-          <TouchableOpacity onPress={handleVerify} disabled={loading} className="bg-black rounded-xl py-4 items-center">
+          <TouchableOpacity onPress={handleVerify} disabled={loading} className="bg-[#0021A5] rounded-xl py-4 items-center">
             {loading ? <ActivityIndicator color="white" /> : <Text className="text-white font-semibold text-lg">Verify Email</Text>}
           </TouchableOpacity>
         </View>
@@ -125,14 +121,14 @@ export default function SignUpPage() {
               <Text className="text-sm font-medium text-gray-700 mb-1">Password</Text>
               <TextInput
                 className="border border-gray-300 rounded-xl px-4 py-3 text-black bg-gray-50"
-                placeholder="Create a password"
+                placeholder="Create a password (min 8 chars)"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
               />
             </View>
 
-            <TouchableOpacity onPress={handleSignUp} disabled={loading} className="mt-6 bg-black rounded-xl py-4 items-center">
+            <TouchableOpacity onPress={handleSignUp} disabled={loading} className="mt-6 bg-[#0021A5] rounded-xl py-4 items-center">
               {loading ? <ActivityIndicator color="white" /> : <Text className="text-white font-semibold text-lg">Create Account</Text>}
             </TouchableOpacity>
 

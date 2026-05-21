@@ -1,12 +1,6 @@
 import mongoose from "mongoose";
-import { act } from "react";
 
 const userSchema = new mongoose.Schema({
-  clerkId: {
-    type: String,
-    required: true,
-    unique: true,
-  },
   firstName: {
     type: String,
     required: true,
@@ -15,15 +9,21 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  avatar: {
+  email: {
     type: String,
     required: true,
+    unique: true,
+  },
+  passwordHash: {
+    type: String,
+    required: true,
+  },
+  avatar: {
+    type: String,
     default: "",
   },
   PhoneNumber: {
     type: String,
-    // required: true,
-    //TODO: later should add a phone number
   },
   description: {
     type: String,
@@ -31,12 +31,17 @@ const userSchema = new mongoose.Schema({
   },
   location: {
     type: String,
-    default: "Gainesville, FL",
+    default: "",
   },
-  email: {
+  verified: {
+    type: Boolean,
+    default: false,
+  },
+  emailVerificationToken: {
     type: String,
-    required: true,
-    unique: true,
+  },
+  emailVerificationExpires: {
+    type: Date,
   },
   reviews: {
     type: Array,
@@ -67,13 +72,11 @@ const userSchema = new mongoose.Schema({
   conversations: [
     { type: mongoose.Schema.Types.ObjectId, ref: "Conversation" },
   ],
-  verified: {
-    type: Boolean,
-  },
   rating: {
     type: Number,
     default: 5,
   },
 });
+
 const User = mongoose.model("User", userSchema);
 export default User;

@@ -3,89 +3,28 @@ import Conversation from "../models/Conversation.js";
 import Message from "../models/Message.js";
 import Post from "../models/Post.js";
 import { uploadToS3, deleteFromS3 } from "../utils/s3Upload.js";
-import { isImageSafe } from "../utils/geminiModeration.js";
 import { v4 as uuidv4 } from "uuid";
-export const saveUser = async (req, res) => {
-  try {
-    const { userId: clerkId } = req.auth();
-    if (!clerkId) {
-      return res.status(400).json({ message: "clerkId is required" });
-    }
-
-    const { firstName, lastName, email, avatar } = req.body;
-
-    if (!email) {
-      return res.status(400).json({ message: "email is required" });
-    }
-
-    const isUflEmail = email.toLowerCase().trim().endsWith("@ufl.edu");
-
-    // find a user
-    let user = await User.findOne({ clerkId });
-
-    // if the user does not exist, create a new one using create method.
-    if (!user) {
-      user = await User.create({
-        clerkId,
-        firstName,
-        lastName,
-        PhoneNumber: "",
-        email,
-        avatar: avatar,
-        // Optionally mark UF emails as verified for UI purposes
-        verified: isUflEmail,
-      });
-    }
-
-    res.status(200).json(user);
-  } catch (err) {
-    res.status(500).json({ message: "Error saving user", error: err.message });
-  }
-};
-
-export const getCurrentUserProfile = async (req, res) => {
-  try {
-    const { userId: clerkId } = req.auth(); // Clerk 自动解析
-    if (!clerkId) {
-      return res.status(400).json({ message: "clerkId is required" });
-    }
-
-    const user = await User.findOne({ clerkId });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.status(200).json(user);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error fetching user", error: err.message });
-  }
-};
 
 export const updateUserFavorite = async (req, res) => {
   try {
-    const { userId: clerkId } = req.auth();
-    if (!clerkId)
-      return res.status(400).json({ message: "clerkId is required" });
-
+    const userId = req.userId;
     const { postId, action } = req.body;
     if (!postId) return res.status(400).json({ message: "postId is required" });
 
-    const user = await User.findOne({ clerkId });
+    const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
     if (action === "add") {
-      await User.updateOne({ clerkId }, { $addToSet: { favorites: postId } });
+      await User.findByIdAndUpdate(userId, { $addToSet: { favorites: postId } });
       await Post.findByIdAndUpdate(postId, { $inc: { favorites: 1 } });
     } else if (action === "remove") {
-      await User.updateOne({ clerkId }, { $pull: { favorites: postId } });
+      await User.findByIdAndUpdate(userId, { $pull: { favorites: postId } });
       await Post.findByIdAndUpdate(postId, { $inc: { favorites: -1 } });
     } else {
       return res.status(400).json({ message: "Invalid action" });
     }
 
-    const updatedUser = await User.findOne({ clerkId }).populate("favorites");
+    const updatedUser = await User.findById(userId).populate("favorites");
     res.status(200).json(updatedUser);
   } catch (e) {
     console.error(e);
@@ -95,13 +34,9 @@ export const updateUserFavorite = async (req, res) => {
 
 export const getUserFavorite = async (req, res) => {
   try {
-    const { userId: clerkId } = req.auth();
-    if (!clerkId)
-      return res.status(400).json({ message: "clerkId is required" });
-
-    const user = await User.findOne({ clerkId }).populate("favorites");
+    const userId = req.userId;
+    const user = await User.findById(userId).populate("favorites");
     if (!user) return res.status(404).json({ message: "User not found" });
-
     res.status(200).json(user.favorites);
   } catch (e) {
     console.error(e);
@@ -111,37 +46,29 @@ export const getUserFavorite = async (req, res) => {
 
 export const addUserActive = async (req, res) => {
   try {
-    const { userId: clerkId } = req.auth();
-    if (!clerkId) {
-      return res.status(400).json({ message: "clerkId is required" });
-    }
+    const userId = req.userId;
     const { postId } = req.body;
-    console.log(postId);
     if (!postId) {
       return res.status(400).json({ message: "postId is required" });
     }
-    const user = await User.findOne({ clerkId });
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    await User.updateOne({ clerkId }, { $addToSet: { active: postId } });
-    const updatedUser = await User.findOne({ clerkId }).populate("active");
+    await User.findByIdAndUpdate(userId, { $addToSet: { active: postId } });
+    const updatedUser = await User.findById(userId).populate("active");
     res.status(200).json(updatedUser);
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error fetching user", error: err.message });
+    res.status(500).json({ message: "Error fetching user", error: err.message });
   }
 };
 
-// converstaions and messages
-
 export const getUserConversations = async (req, res) => {
   try {
-    const { userId: clerkId } = req.auth();
+    const userId = req.userId;
     const { postId } = req.query;
 
-    const user = await User.findOne({ clerkId });
+    const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const match = { participants: user._id };
@@ -150,7 +77,7 @@ export const getUserConversations = async (req, res) => {
     }
 
     const conversations = await Conversation.find(match)
-      .populate("participants", "firstName lastName email avatar clerkId")
+      .populate("participants", "firstName lastName email avatar _id")
       .populate("lastMessage")
       .populate("post", "title price images")
       .sort({ updatedAt: -1 });
@@ -163,12 +90,11 @@ export const getUserConversations = async (req, res) => {
 
 export const getUserMessages = async (req, res) => {
   try {
-    const { userId: clerkId } = req.auth();
+    const userId = req.userId;
     const conversationId = req.params.id;
 
-    const user = await User.findOne({ clerkId });
+    const user = await User.findById(userId);
     const conversation = await Conversation.findById(conversationId);
-    console.log(conversation);
 
     if (!conversation.participants.includes(user._id))
       return res.status(403).json({ message: "Not authorized" });
@@ -176,8 +102,6 @@ export const getUserMessages = async (req, res) => {
     const messages = await Message.find({ conversationId })
       .populate("sender", "firstName lastName email")
       .sort({ sentAt: 1 });
-
-    console.log(messages);
 
     res.status(200).json(messages);
   } catch (err) {
@@ -187,34 +111,25 @@ export const getUserMessages = async (req, res) => {
 
 export const startConversation = async (req, res) => {
   try {
-    const { userId: buyerClerkId } = req.auth(); // user him/herself
-
-    const { postId } = req.body; // seller
+    const buyerId = req.userId;
+    const { postId } = req.body;
     if (!postId) {
       return res.status(400).json({ message: "postId is required" });
     }
 
-    const buyer = await User.findOne({ clerkId: buyerClerkId });
-    if (
-      !buyer ||
-      !buyer.email ||
-      !buyer.email.toLowerCase().trim().endsWith("@ufl.edu")
-    ) {
-      return res.status(403).json({
-        message:
-          "Only University of Florida (@ufl.edu) accounts can contact sellers on Gator Exchange.",
-      });
+    const buyer = await User.findById(buyerId);
+    if (!buyer) {
+      return res.status(404).json({ message: "Buyer not found" });
     }
 
-    const post = await Post.findById(postId).populate("clerkId");
+    const post = await Post.findById(postId);
     if (!post) {
-      return res.status(404).json({ message: "Buyer or post not found" });
+      return res.status(404).json({ message: "Post not found" });
     }
-    const seller = await User.findOne({ clerkId: post.clerkId });
+
+    const seller = await User.findById(post.userId);
     if (!seller) {
-      return res
-        .status(404)
-        .json({ message: "Seller not found for this post" });
+      return res.status(404).json({ message: "Seller not found for this post" });
     }
 
     if (buyer._id.equals(seller._id)) {
@@ -244,27 +159,11 @@ export const startConversation = async (req, res) => {
 
 export async function addPost(req, res) {
   try {
-    const { userId: clerkId } = req.auth();
+    const userId = req.userId;
 
-    if (!clerkId) {
-      return res.status(401).json({
-        success: false,
-        message: "Authentication required",
-      });
-    }
-
-    // Look up the Mongo user and enforce UF email domain for posting
-    const user = await User.findOne({ clerkId });
-    if (
-      !user ||
-      !user.email ||
-      !user.email.toLowerCase().trim().endsWith("@ufl.edu")
-    ) {
-      return res.status(403).json({
-        success: false,
-        message:
-          "Only University of Florida (@ufl.edu) accounts can create listings on Gator Exchange.",
-      });
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     const {
@@ -275,30 +174,14 @@ export async function addPost(req, res) {
       condition,
       location,
       meetingPreference,
-      firstName,
-      lastName,
     } = req.body;
-    // Validate required fields
-    if (
-      !title ||
-      !description ||
-      !price ||
-      !category ||
-      !condition ||
-      !location
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing required fields",
-      });
+
+    if (!title || !description || !price || !category || !condition || !location) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    // Check if images were uploaded
     if (!req.files || req.files.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "At least one image is required",
-      });
+      return res.status(400).json({ success: false, message: "At least one image is required" });
     }
 
     // Run Gemini safety check on each image BEFORE uploading to S3
@@ -323,13 +206,11 @@ export async function addPost(req, res) {
     //   }
     // }
 
-    // If all images are safe, upload them to S3
     const imageUploadPromises = req.files.map((file) => uploadToS3(file));
     const imageUrls = await Promise.all(imageUploadPromises);
 
-    // Create new post
     const newPost = new Post({
-      clerkId,
+      userId,
       title,
       description,
       price: parseFloat(price),
@@ -339,12 +220,15 @@ export async function addPost(req, res) {
       meetingPreference: meetingPreference || "campus",
       images: imageUrls,
       status: "active",
-      firstName: firstName,
-      lastName: lastName,
+      firstName: user.firstName,
+      lastName: user.lastName,
     });
 
     await newPost.save();
-    console.log("New post created:", newPost);
+
+    // Add post to user's active array
+    await User.findByIdAndUpdate(userId, { $addToSet: { active: newPost._id } });
+
     res.status(201).json({
       success: true,
       message: "Post created successfully",
@@ -352,22 +236,19 @@ export async function addPost(req, res) {
     });
   } catch (error) {
     console.error("Create Post Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to create post",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: "Failed to create post", error: error.message });
   }
 }
 
 export const getUserProfile = async (req, res) => {
   try {
-    const clerkId = req.params.id || req.auth()?.userId;
-    if (!clerkId) {
-      return res.status(400).json({ message: "clerkId is required" });
+    const userId = req.params.id || req.userId;
+    if (!userId) {
+      return res.status(400).json({ message: "userId is required" });
     }
 
-    const user = await User.findOne({ clerkId });
+    // When id param is present, treat as a userId (Mongo ObjectId)
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -376,6 +257,7 @@ export const getUserProfile = async (req, res) => {
     const safeUser = isSelf
       ? user
       : {
+          _id: user._id,
           firstName: user.firstName,
           lastName: user.lastName,
           avatar: user.avatar,
@@ -383,25 +265,24 @@ export const getUserProfile = async (req, res) => {
           location: user.location,
           createdAt: user.createdAt,
           email: user.email,
+          rating: user.rating,
         };
 
     res.status(200).json(safeUser);
   } catch (err) {
     console.error("Error fetching user:", err);
-    res
-      .status(500)
-      .json({ message: "Error fetching user", error: err.message });
+    res.status(500).json({ message: "Error fetching user", error: err.message });
   }
 };
 
 export const getUserActive = async (req, res) => {
   try {
-    const clerkId = req.params.id || req.auth()?.userId;
-    if (!clerkId) {
-      return res.status(400).json({ message: "clerkId is required" });
+    const userId = req.params.id || req.userId;
+    if (!userId) {
+      return res.status(400).json({ message: "userId is required" });
     }
 
-    const user = await User.findOne({ clerkId }).populate("active");
+    const user = await User.findById(userId).populate("active");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -409,20 +290,18 @@ export const getUserActive = async (req, res) => {
     res.status(200).json(user.active || []);
   } catch (err) {
     console.error("Error fetching active posts:", err);
-    res
-      .status(500)
-      .json({ message: "Error fetching active posts", error: err.message });
+    res.status(500).json({ message: "Error fetching active posts", error: err.message });
   }
 };
 
 export const getUserSoldPost = async (req, res) => {
   try {
-    const clerkId = req.params.id || req.auth()?.userId;
-    if (!clerkId) {
-      return res.status(400).json({ message: "clerkId is required" });
+    const userId = req.params.id || req.userId;
+    if (!userId) {
+      return res.status(400).json({ message: "userId is required" });
     }
 
-    const user = await User.findOne({ clerkId }).populate("sold");
+    const user = await User.findById(userId).populate("sold");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -430,22 +309,20 @@ export const getUserSoldPost = async (req, res) => {
     res.status(200).json(user.sold || []);
   } catch (err) {
     console.error("Error fetching sold posts:", err);
-    res
-      .status(500)
-      .json({ message: "Error fetching sold posts", error: err.message });
+    res.status(500).json({ message: "Error fetching sold posts", error: err.message });
   }
 };
 
 export const deletePost = async (req, res) => {
   try {
     const { id } = req.params;
-    const clerkId = req.auth().userId;
+    const userId = req.userId;
     const post = await Post.findById(id);
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
     }
-    if (post.clerkId !== clerkId) {
+    if (post.userId.toString() !== userId) {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
@@ -461,23 +338,11 @@ export const deletePost = async (req, res) => {
 
     await Post.findByIdAndDelete(id);
 
-    // Clean up references to this post from the owner's document
-    await User.updateOne(
-      { clerkId },
-      {
-        $pull: {
-          active: id,
-          sold: id,
-          favorites: id,
-        },
-      }
-    );
+    await User.findByIdAndUpdate(userId, {
+      $pull: { active: id, sold: id, favorites: id },
+    });
 
-    // Also remove this post from any other users' favorites, if present
-    await User.updateMany(
-      { favorites: id },
-      { $pull: { favorites: id } }
-    );
+    await User.updateMany({ favorites: id }, { $pull: { favorites: id } });
 
     res.status(200).json({ message: "Post deleted successfully" });
   } catch (err) {
@@ -489,10 +354,10 @@ export const deletePost = async (req, res) => {
 export const activeToSold = async (req, res) => {
   try {
     const postId = req.params.id;
-    const { userId: clerkId } = req.auth();
+    const userId = req.userId;
     const { status = "sold" } = req.body || {};
 
-    let user = await User.findOne({ clerkId });
+    let user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -502,24 +367,18 @@ export const activeToSold = async (req, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    // Ensure the authenticated user owns this post
-    if (post.clerkId !== clerkId) {
+    if (post.userId.toString() !== userId) {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
     if (status === "active") {
-      // Mark as unsold / back to active
       post.status = "active";
       await post.save();
 
-      // Remove from sold array
       user.sold = user.sold.filter((id) => id.toString() !== postId.toString());
-
-      // Ensure it exists in active array
       if (!user.active.some((id) => id.toString() === postId.toString())) {
         user.active.push(postId);
       }
-
       await user.save();
 
       return res.status(200).json({
@@ -529,18 +388,13 @@ export const activeToSold = async (req, res) => {
       });
     }
 
-    // Default path – mark as sold
     post.status = "sold";
     await post.save();
 
-    user.active = user.active.filter(
-      (id) => id.toString() !== postId.toString()
-    );
-
+    user.active = user.active.filter((id) => id.toString() !== postId.toString());
     if (!user.sold.includes(postId)) {
       user.sold.push(postId);
     }
-
     await user.save();
 
     res.status(200).json({
@@ -556,12 +410,9 @@ export const activeToSold = async (req, res) => {
 
 export const updatePost = async (req, res) => {
   try {
-    const { clerkId } = req.auth();
-    if (!clerkId) {
-      return res.status(400).json({ message: "clerkId is required" });
-    }
+    const userId = req.userId;
+    const itemId = req.params.id;
 
-    const { itemId } = req.params;
     const {
       title,
       description,
@@ -574,25 +425,15 @@ export const updatePost = async (req, res) => {
       imagesToDelete,
     } = req.body;
 
-    // Find the post
     const post = await Post.findById(itemId);
-
     if (!post) {
-      return res.status(404).json({
-        success: false,
-        message: "Post not found",
-      });
+      return res.status(404).json({ success: false, message: "Post not found" });
     }
 
-    // Verify ownership
-    if (post.clerkId !== req.user.clerkId) {
-      return res.status(403).json({
-        success: false,
-        message: "Unauthorized",
-      });
+    if (post.userId.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "Unauthorized" });
     }
 
-    // Delete images from S3 if specified
     if (imagesToDelete && imagesToDelete.length > 0) {
       const deletePromises = JSON.parse(imagesToDelete).map((imageUrl) =>
         deleteFromS3(imageUrl)
@@ -600,20 +441,17 @@ export const updatePost = async (req, res) => {
       await Promise.all(deletePromises);
     }
 
-    // Upload new images
     let newImageUrls = [];
     if (req.files && req.files.length > 0) {
       const uploadPromises = req.files.map((file) => uploadToS3(file));
       newImageUrls = await Promise.all(uploadPromises);
     }
 
-    // Combine existing and new images
     const finalImages = [
       ...JSON.parse(existingImages || "[]"),
       ...newImageUrls,
     ];
 
-    // Update post
     post.title = title;
     post.description = description;
     post.price = parseFloat(price);
@@ -625,81 +463,53 @@ export const updatePost = async (req, res) => {
 
     await post.save();
 
-    res.status(200).json({
-      success: true,
-      message: "Post updated successfully",
-      data: post,
-    });
+    res.status(200).json({ success: true, message: "Post updated successfully", data: post });
   } catch (error) {
     console.error("Update Post Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to update post",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: "Failed to update post", error: error.message });
   }
 };
 
 export const getReviews = async (req, res) => {
   try {
-    const { userId: clerkId } = req.auth();
-    const user = await User.findOne({ clerkId }).populate("reviews");
+    const userId = req.userId;
+    const user = await User.findById(userId).populate("reviews");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
     res.status(200).json(user.reviews || []);
   } catch (err) {
     console.error("Error fetching reviews:", err);
-    res
-      .status(500)
-      .json({ message: "Error fetching reviews", error: err.message });
+    res.status(500).json({ message: "Error fetching reviews", error: err.message });
   }
 };
 
 export const sendMessage = async (req, res) => {
   try {
-    const { userId: clerkId } = req.auth(); // Get the current user's Clerk ID
-    const { content, conversationId } = req.body; // Message content and conversation ID from frontend
+    const senderId = req.userId;
+    const { content, conversationId } = req.body;
 
-    // 1. Validate message content
     if (!content || !content.trim()) {
       return res.status(400).json({ message: "Message content is required" });
     }
 
-    // 2. Find sender user in the database
-    const senderUser = await User.findOne({ clerkId });
+    const senderUser = await User.findById(senderId);
     if (!senderUser) {
       return res.status(404).json({ message: "Sender not found" });
     }
 
-    // Enforce UF email domain for sending messages
-    if (
-      !senderUser.email ||
-      !senderUser.email.toLowerCase().trim().endsWith("@ufl.edu")
-    ) {
-      return res.status(403).json({
-        message:
-          "Only University of Florida (@ufl.edu) accounts can send messages on Gator Exchange.",
-      });
-    }
-
-    // 3. Find the conversation by ID
     const conversation = await Conversation.findById(conversationId);
     if (!conversation) {
       return res.status(404).json({ message: "Conversation not found" });
     }
 
-    // 4. Check if the sender is part of the conversation
     const isParticipant = conversation.participants.some(
       (p) => p.toString() === senderUser._id.toString()
     );
     if (!isParticipant) {
-      return res
-        .status(403)
-        .json({ message: "Not authorized to send messages" });
+      return res.status(403).json({ message: "Not authorized to send messages" });
     }
 
-    // 5. Find the receiver (the other participant in the conversation)
     const receiverId = conversation.participants.find(
       (p) => p.toString() !== senderUser._id.toString()
     );
@@ -709,29 +519,23 @@ export const sendMessage = async (req, res) => {
       return res.status(404).json({ message: "Receiver not found" });
     }
 
-    // 6. Create a new message document
     const newMessage = new Message({
-      messageId: uuidv4(), // Unique message ID
-      conversationId: conversation._id, // Link message to conversation
-      sender: senderUser._id, // Sender's database ID
-      receiver: receiverUser._id, // Receiver's database ID
-      message: content, // Message text
-      check: false, // Unread by default
-      timestamp: new Date(), // Creation time
+      messageId: uuidv4(),
+      conversationId: conversation._id,
+      sender: senderUser._id,
+      receiver: receiverUser._id,
+      message: content,
+      check: false,
+      timestamp: new Date(),
     });
 
     await newMessage.save();
 
-    // 7. Update the conversation with the last message info
     conversation.lastMessage = newMessage._id;
     conversation.updatedAt = new Date();
     await conversation.save();
 
-    // 8. Send success response back to client
-    res.status(201).json({
-      success: true,
-      data: newMessage,
-    });
+    res.status(201).json({ success: true, data: newMessage });
   } catch (err) {
     console.error("Error in sendMessage:", err);
     res.status(500).json({ message: err.message });
@@ -740,14 +544,13 @@ export const sendMessage = async (req, res) => {
 
 export const getMe = async (req, res) => {
   try {
-    const { userId: clerkId } = req.auth(); // Clerk ID from JWT
-    const user = await User.findOne({ clerkId }); // Find matching user in MongoDB
+    const userId = req.userId;
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Return user document (includes Mongo _id)
     res.status(200).json(user);
   } catch (err) {
     console.error("Error in getMe:", err);
@@ -757,14 +560,11 @@ export const getMe = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    const { userId: clerkId } = req.auth();
-    if (!clerkId) {
-      return res.status(400).json({ message: "clerkId is required" });
-    }
+    const userId = req.userId;
 
     const { firstName, lastName, bio, location, phone, avatar } = req.body;
 
-    const user = await User.findOne({ clerkId });
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }

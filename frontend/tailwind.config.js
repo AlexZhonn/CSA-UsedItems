@@ -5,7 +5,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        gator: {
+        brand: {
           orange: "#FA4616",
           blue: "#0021A5",
         },

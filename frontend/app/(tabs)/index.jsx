@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import { useUser, useAuth } from "@clerk/clerk-expo";
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
-  Modal,
   SafeAreaView,
 } from "react-native";
 import { useRouter } from "expo-router";
@@ -27,11 +25,8 @@ const categories = [
 ];
 
 export default function HomeScreen() {
-  const { isSignedIn, getToken } = useAuth();
-  const { user } = useUser();
   const router = useRouter();
   const [stats, setStats] = useState({ users: 0, posts: 0, dones: 0 });
-  const [showNonUflDialog, setShowNonUflDialog] = useState(false);
 
   const formatNumber = (num) => {
     if (!num) return "0";
@@ -45,30 +40,6 @@ export default function HomeScreen() {
       if (data) setStats({ users: data.users || 0, posts: data.posts || 0, dones: data.dones || 0 });
     }).catch(console.error);
   }, []);
-
-  useEffect(() => {
-    if (!isSignedIn || !user) return;
-    const saveUser = async () => {
-      const token = await getToken();
-      const email = user.primaryEmailAddress?.emailAddress;
-      try {
-        await api.saveUser(token, {
-          PhoneNumber: user.primaryPhoneNumber?.phoneNumber,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email,
-          avatar: user.imageUrl || "",
-        });
-      } catch (err) {
-        // Ignore duplicate key error — user already exists in DB
-        if (!err.message?.includes("dup key")) throw err;
-      }
-      if (!email?.toLowerCase().trim().endsWith("@ufl.edu")) {
-        setShowNonUflDialog(true);
-      }
-    };
-    saveUser().catch(console.error);
-  }, [isSignedIn, user]);
 
   return (
     <SafeAreaView className="flex-1 bg-white" style={{ flex: 1 }}>
@@ -174,25 +145,6 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
-
-      {/* Non-UFL Dialog */}
-      <Modal visible={showNonUflDialog} transparent animationType="fade">
-        <View className="flex-1 justify-center items-center px-6" style={{ backgroundColor: "rgba(0,0,0,0.4)" }}>
-          <View className="bg-white rounded-2xl p-6 w-full">
-            <Text className="text-xl font-bold text-black mb-2">Limited access for guests</Text>
-            <Text className="text-gray-600 mb-4">CSA Market is built for Chinese Student Association members.</Text>
-            <Text className="text-sm text-gray-700 mb-1">You can still:</Text>
-            <Text className="text-sm text-gray-600 ml-3">• Browse the marketplace</Text>
-            <Text className="text-sm text-gray-600 ml-3 mb-3">• View public profiles and listings</Text>
-            <Text className="text-sm text-gray-700 mb-1">As a non-member you cannot:</Text>
-            <Text className="text-sm text-gray-600 ml-3">• Create new listings</Text>
-            <Text className="text-sm text-gray-600 ml-3 mb-4">• Send messages to other users</Text>
-            <TouchableOpacity onPress={() => setShowNonUflDialog(false)} className="bg-black rounded-xl py-3 items-center">
-              <Text className="text-white font-semibold">Got it</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 }

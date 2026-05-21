@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuthContext } from "../../context/AuthContext";
 import {
   View,
   Text,
@@ -43,7 +43,7 @@ const LOCATIONS = [
 export default function EditItemScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { getToken } = useAuth();
+  const { getToken } = useAuthContext();
   const { itemId } = params;
 
   const [title, setTitle] = useState("");
@@ -172,7 +172,7 @@ export default function EditItemScreen() {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-white items-center justify-center" style={{ flex: 1 }}>
-        <ActivityIndicator size="large" color="#FA4616" />
+        <ActivityIndicator size="large" color="#0021A5" />
         <Text className="mt-3 text-gray-400">Loading listing...</Text>
       </SafeAreaView>
     );
@@ -193,7 +193,7 @@ export default function EditItemScreen() {
           <TouchableOpacity
             onPress={handleSave}
             disabled={saving}
-            className="bg-black rounded-xl px-4 py-2"
+            className="bg-[#0021A5] rounded-xl px-4 py-2"
           >
             {saving ? (
               <ActivityIndicator size="small" color="white" />
@@ -231,7 +231,7 @@ export default function EditItemScreen() {
                   />
                   <TouchableOpacity
                     onPress={() => removeExistingImage(idx)}
-                    className="absolute top-1 right-1 bg-black rounded-full p-0.5"
+                    className="absolute top-1 right-1 bg-[#0021A5] rounded-full p-0.5"
                   >
                     <X size={12} color="white" />
                   </TouchableOpacity>
@@ -249,7 +249,7 @@ export default function EditItemScreen() {
                   </View>
                   <TouchableOpacity
                     onPress={() => removeNewImage(idx)}
-                    className="absolute top-1 right-1 bg-black rounded-full p-0.5"
+                    className="absolute top-1 right-1 bg-[#0021A5] rounded-full p-0.5"
                   >
                     <X size={12} color="white" />
                   </TouchableOpacity>
@@ -318,7 +318,7 @@ export default function EditItemScreen() {
                   key={cat}
                   onPress={() => setCategory(cat)}
                   className={`px-4 py-2 rounded-full border ${
-                    category === cat ? "bg-black border-black" : "bg-white border-gray-200"
+                    category === cat ? "bg-[#0021A5] border-[#0021A5]" : "bg-white border-gray-200"
                   }`}
                 >
                   <Text
@@ -343,7 +343,7 @@ export default function EditItemScreen() {
                   key={cond}
                   onPress={() => setCondition(cond)}
                   className={`px-4 py-2 rounded-full border ${
-                    condition === cond ? "bg-black border-black" : "bg-white border-gray-200"
+                    condition === cond ? "bg-[#0021A5] border-[#0021A5]" : "bg-white border-gray-200"
                   }`}
                 >
                   <Text
@@ -368,7 +368,7 @@ export default function EditItemScreen() {
                   key={loc}
                   onPress={() => setLocation(loc)}
                   className={`px-4 py-2 rounded-full border ${
-                    location === loc ? "bg-black border-black" : "bg-white border-gray-200"
+                    location === loc ? "bg-[#0021A5] border-[#0021A5]" : "bg-white border-gray-200"
                   }`}
                 >
                   <Text
@@ -388,7 +388,7 @@ export default function EditItemScreen() {
           <TouchableOpacity
             onPress={handleSave}
             disabled={saving}
-            className="bg-black rounded-2xl py-4 items-center"
+            className="bg-[#0021A5] rounded-2xl py-4 items-center"
           >
             {saving ? (
               <ActivityIndicator color="white" />

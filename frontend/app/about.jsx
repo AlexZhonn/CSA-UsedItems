@@ -93,8 +93,8 @@ export default function AboutScreen() {
                   key={idx}
                   className="flex-row bg-gray-50 rounded-2xl p-4 items-start"
                 >
-                  <View className="bg-orange-100 rounded-xl p-2.5 mr-4">
-                    <Icon size={20} color="#FA4616" />
+                  <View className="bg-blue-100 rounded-xl p-2.5 mr-4">
+                    <Icon size={20} color="#0021A5" />
                   </View>
                   <View className="flex-1">
                     <Text className="font-bold text-black text-sm mb-1">{feat.title}</Text>
@@ -107,7 +107,7 @@ export default function AboutScreen() {
         </View>
 
         {/* Stats */}
-        <View className="mx-6 mb-8 bg-black rounded-2xl p-6">
+        <View className="mx-6 mb-8 bg-[#0021A5] rounded-2xl p-6">
           <Text className="text-white font-black text-lg mb-4 text-center">
             CSA Market by the Numbers
           </Text>

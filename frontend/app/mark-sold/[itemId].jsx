@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth, useUser } from "@clerk/clerk-expo";
+import { useAuthContext } from "../../context/AuthContext";
 import {
   View,
   Text,
@@ -22,8 +22,7 @@ const PAYMENT_METHODS = ["cash", "venmo", "zelle", "other"];
 export default function MarkSoldScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { getToken } = useAuth();
-  const { user } = useUser();
+  const { getToken, user } = useAuthContext();
   const { itemId } = params;
 
   const [item, setItem] = useState(null);
@@ -45,7 +44,7 @@ export default function MarkSoldScreen() {
           api.getPostById(itemId, token),
           api.getUserConversations(token, { postId: itemId }),
         ]);
-        if (itemData.clerkId !== user?.id) {
+        if (itemData.userId !== user?.userId) {
           router.replace("/(tabs)/market");
           return;
         }
@@ -102,7 +101,7 @@ export default function MarkSoldScreen() {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-white items-center justify-center" style={{ flex: 1 }}>
-        <ActivityIndicator size="large" color="#FA4616" />
+        <ActivityIndicator size="large" color="#0021A5" />
       </SafeAreaView>
     );
   }
@@ -145,9 +144,9 @@ export default function MarkSoldScreen() {
             <Text className="text-sm font-semibold text-gray-700 mb-2">Who bought this? <Text className="text-gray-400 font-normal">(Optional)</Text></Text>
             <TouchableOpacity
               onPress={() => setSelectedBuyer(null)}
-              className={`flex-row items-center p-3 rounded-xl border mb-2 ${!selectedBuyer ? "border-black bg-gray-50" : "border-gray-200"}`}
+              className={`flex-row items-center p-3 rounded-xl border mb-2 ${!selectedBuyer ? "border-[#0021A5] bg-gray-50" : "border-gray-200"}`}
             >
-              <View className={`w-4 h-4 rounded-full border-2 mr-2 ${!selectedBuyer ? "border-black bg-black" : "border-gray-300"}`} />
+              <View className={`w-4 h-4 rounded-full border-2 mr-2 ${!selectedBuyer ? "border-[#0021A5] bg-[#0021A5]" : "border-gray-300"}`} />
               <Text className="text-black text-sm">Sold Outside Platform</Text>
             </TouchableOpacity>
             {conversations.length === 0 ? (
@@ -157,17 +156,17 @@ export default function MarkSoldScreen() {
               </View>
             ) : (
               conversations.map((conv) => {
-                const other = conv.participants?.find((p) => p.clerkId !== user?.id) || conv.participants?.[0];
-                const isSelected = selectedBuyer === other?.clerkId;
+                const other = conv.participants?.find((p) => p._id !== user?.userId) || conv.participants?.[0];
+                const isSelected = selectedBuyer === other?._id;
                 return (
                   <TouchableOpacity
                     key={conv._id}
-                    onPress={() => setSelectedBuyer(other?.clerkId)}
-                    className={`flex-row items-center p-3 rounded-xl border mb-2 ${isSelected ? "border-black bg-gray-50" : "border-gray-200"}`}
+                    onPress={() => setSelectedBuyer(other?._id)}
+                    className={`flex-row items-center p-3 rounded-xl border mb-2 ${isSelected ? "border-[#0021A5] bg-gray-50" : "border-gray-200"}`}
                   >
-                    <View className={`w-4 h-4 rounded-full border-2 mr-2 ${isSelected ? "border-black bg-black" : "border-gray-300"}`} />
-                    <View className="w-8 h-8 rounded-full bg-orange-100 items-center justify-center mr-2">
-                      <Text className="text-orange-500 font-bold text-xs">{(other?.firstName?.[0] || "?").toUpperCase()}</Text>
+                    <View className={`w-4 h-4 rounded-full border-2 mr-2 ${isSelected ? "border-[#0021A5] bg-[#0021A5]" : "border-gray-300"}`} />
+                    <View className="w-8 h-8 rounded-full bg-blue-100 items-center justify-center mr-2">
+                      <Text className="text-[#0021A5] font-bold text-xs">{(other?.firstName?.[0] || "?").toUpperCase()}</Text>
                     </View>
                     <View className="flex-1">
                       <Text className="text-black text-sm font-medium">{other?.firstName || "User"} {other?.lastName || ""}</Text>
@@ -219,7 +218,7 @@ export default function MarkSoldScreen() {
                 <TouchableOpacity
                   key={method}
                   onPress={() => setTransactionMethod(method)}
-                  className={`px-4 py-2 rounded-xl border ${transactionMethod === method ? "bg-black border-black" : "border-gray-200 bg-gray-50"}`}
+                  className={`px-4 py-2 rounded-xl border ${transactionMethod === method ? "bg-[#0021A5] border-[#0021A5]" : "border-gray-200 bg-gray-50"}`}
                 >
                   <Text className={`text-sm font-medium capitalize ${transactionMethod === method ? "text-white" : "text-black"}`}>{method}</Text>
                 </TouchableOpacity>

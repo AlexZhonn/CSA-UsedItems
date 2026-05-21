@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuthContext } from "../../context/AuthContext";
 import {
   View,
   Text,
@@ -65,7 +65,7 @@ const defaultMoreFilters = {
 };
 
 export default function MarketScreen() {
-  const { getToken } = useAuth();
+  const { getToken } = useAuthContext();
 
   const [allItems, setAllItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -247,7 +247,7 @@ export default function MarketScreen() {
               onPress={() => setSelectedCategory(cat)}
               className={`mr-2 px-4 py-2 rounded-full border ${
                 selectedCategory === cat
-                  ? "bg-black border-black"
+                  ? "bg-[#0021A5] border-[#0021A5]"
                   : "bg-white border-gray-200"
               }`}
             >
@@ -297,7 +297,7 @@ export default function MarketScreen() {
               setShowMoreFilters(true);
             }}
             className={`flex-row items-center px-3 py-1.5 rounded-full border ${
-              hasActiveFilters ? "bg-black border-black" : "bg-white border-gray-200"
+              hasActiveFilters ? "bg-[#0021A5] border-[#0021A5]" : "bg-white border-gray-200"
             }`}
           >
             <SlidersHorizontal
@@ -323,7 +323,7 @@ export default function MarketScreen() {
       {/* Item Grid */}
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#FA4616" />
+          <ActivityIndicator size="large" color="#0021A5" />
           <Text className="mt-3 text-gray-400">Loading listings...</Text>
         </View>
       ) : sortedItems.length === 0 ? (
@@ -341,7 +341,7 @@ export default function MarketScreen() {
                 resetMoreFilters();
                 setSearchQuery("");
               }}
-              className="mt-4 bg-black rounded-xl px-6 py-3"
+              className="mt-4 bg-[#0021A5] rounded-xl px-6 py-3"
             >
               <Text className="text-white font-semibold">Clear Filters</Text>
             </TouchableOpacity>
@@ -382,7 +382,7 @@ export default function MarketScreen() {
                     }
                     className={`px-3 py-2 rounded-full border ${
                       pendingFilters.sortBy === opt.value
-                        ? "bg-black border-black"
+                        ? "bg-[#0021A5] border-[#0021A5]"
                         : "bg-white border-gray-200"
                     }`}
                   >
@@ -410,7 +410,7 @@ export default function MarketScreen() {
                     }
                     className={`px-3 py-2 rounded-full border ${
                       pendingFilters.condition === cond
-                        ? "bg-black border-black"
+                        ? "bg-[#0021A5] border-[#0021A5]"
                         : "bg-white border-gray-200"
                     }`}
                   >
@@ -438,7 +438,7 @@ export default function MarketScreen() {
                     }
                     className={`px-3 py-2 rounded-full border ${
                       pendingFilters.location === loc
-                        ? "bg-black border-black"
+                        ? "bg-[#0021A5] border-[#0021A5]"
                         : "bg-white border-gray-200"
                     }`}
                   >
@@ -497,7 +497,7 @@ export default function MarketScreen() {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={applyMoreFilters}
-                className="flex-1 bg-black rounded-xl py-3 items-center"
+                className="flex-1 bg-[#0021A5] rounded-xl py-3 items-center"
               >
                 <Text className="text-white font-semibold">Apply Filters</Text>
               </TouchableOpacity>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useAuth, useUser } from "@clerk/clerk-expo";
+import { useAuthContext } from "../../context/AuthContext";
 import {
   View,
   Text,
@@ -19,8 +19,7 @@ import { ArrowLeft, Send, MessageSquare } from "lucide-react-native";
 import api from "../../service/api";
 
 export default function MessagesScreen() {
-  const { getToken } = useAuth();
-  const { user } = useUser();
+  const { getToken, user } = useAuthContext();
 
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -100,9 +99,9 @@ export default function MessagesScreen() {
   };
 
   const getOtherParticipant = (conv) => {
-    const myClerkId = user?.id;
+    const myId = user?.userId;
     if (!conv?.participants) return null;
-    return conv.participants.find((p) => p.clerkId !== myClerkId) || conv.participants[0];
+    return conv.participants.find((p) => p._id !== myId) || conv.participants[0];
   };
 
   const formatTime = (dateStr) => {
@@ -119,7 +118,7 @@ export default function MessagesScreen() {
   };
 
   const isMyMessage = (msg) => {
-    return msg?.senderId === user?.id || msg?.senderClerkId === user?.id;
+    return msg?.sender?._id === user?.userId || msg?.sender === user?.userId;
   };
 
   const renderConversation = ({ item: conv }) => {
@@ -184,7 +183,7 @@ export default function MessagesScreen() {
       >
         <View
           className={`rounded-2xl px-4 py-2.5 ${
-            mine ? "bg-black" : "bg-gray-100"
+            mine ? "bg-[#0021A5]" : "bg-gray-100"
           }`}
           style={{ maxWidth: "75%" }}
         >
@@ -209,7 +208,7 @@ export default function MessagesScreen() {
       {/* Conversation List */}
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#FA4616" />
+          <ActivityIndicator size="large" color="#0021A5" />
           <Text className="mt-3 text-gray-400">Loading conversations...</Text>
         </View>
       ) : conversations.length === 0 ? (
@@ -230,7 +229,7 @@ export default function MessagesScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={handleRefresh}
-              tintColor="#FA4616"
+              tintColor="#0021A5"
             />
           }
         />
@@ -272,7 +271,7 @@ export default function MessagesScreen() {
             {/* Messages */}
             {messagesLoading ? (
               <View className="flex-1 items-center justify-center">
-                <ActivityIndicator color="#FA4616" />
+                <ActivityIndicator color="#0021A5" />
               </View>
             ) : messages.length === 0 ? (
               <View className="flex-1 items-center justify-center px-8">
@@ -311,7 +310,7 @@ export default function MessagesScreen() {
                 onPress={handleSend}
                 disabled={sending || !messageText.trim()}
                 className={`w-10 h-10 rounded-full items-center justify-center ${
-                  messageText.trim() && !sending ? "bg-black" : "bg-gray-200"
+                  messageText.trim() && !sending ? "bg-[#0021A5]" : "bg-gray-200"
                 }`}
               >
                 {sending ? (

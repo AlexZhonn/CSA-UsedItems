@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth, useUser } from "@clerk/clerk-expo";
+import { useAuthContext } from "../context/AuthContext";
 import {
   View,
   Text,
@@ -20,8 +20,7 @@ import api from "../service/api";
 
 export default function ProfileEditScreen() {
   const router = useRouter();
-  const { getToken } = useAuth();
-  const { user, isLoaded } = useUser();
+  const { getToken, user, isLoaded } = useAuthContext();
 
   const [profileData, setProfileData] = useState({
     firstName: "",
@@ -37,7 +36,7 @@ export default function ProfileEditScreen() {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (!isLoaded || !user) return;
+    if (!user) return;
     const loadProfile = async () => {
       try {
         const token = await getToken();
@@ -45,26 +44,26 @@ export default function ProfileEditScreen() {
         setProfileData({
           firstName: data.firstName || user.firstName || "",
           lastName: data.lastName || user.lastName || "",
-          email: data.email || user.primaryEmailAddress?.emailAddress || "",
+          email: data.email || user.email || "",
           phone: data.PhoneNumber || "",
           bio: data.description || "",
         });
-        setAvatarPreview(data.avatar || user.imageUrl || null);
+        setAvatarPreview(data.avatar || user.avatar || null);
       } catch {
         setProfileData({
           firstName: user.firstName || "",
           lastName: user.lastName || "",
-          email: user.primaryEmailAddress?.emailAddress || "",
+          email: user.email || "",
           phone: "",
           bio: "",
         });
-        setAvatarPreview(user.imageUrl || null);
+        setAvatarPreview(user.avatar || null);
       } finally {
         setLoading(false);
       }
     };
     loadProfile();
-  }, [isLoaded, user]);
+  }, [user]);
 
   const pickAvatar = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -102,14 +101,13 @@ export default function ProfileEditScreen() {
     setSaving(true);
     setSaveStatus(null);
     try {
-      await user.update({ firstName: profileData.firstName, lastName: profileData.lastName });
       const token = await getToken();
       await api.updateCurrentUserProfile(token, {
         firstName: profileData.firstName,
         lastName: profileData.lastName,
         bio: profileData.bio,
         phone: profileData.phone,
-        avatar: avatarPreview || user.imageUrl,
+        avatar: avatarPreview || user.avatar,
       });
       setSaveStatus("success");
       setTimeout(() => router.back(), 1500);
@@ -123,7 +121,7 @@ export default function ProfileEditScreen() {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-white items-center justify-center" style={{ flex: 1 }}>
-        <ActivityIndicator size="large" color="#FA4616" />
+        <ActivityIndicator size="large" color="#0021A5" />
       </SafeAreaView>
     );
   }
@@ -140,7 +138,7 @@ export default function ProfileEditScreen() {
           <TouchableOpacity
             onPress={handleSave}
             disabled={saving}
-            className="bg-black rounded-xl px-4 py-2 flex-row items-center"
+            className="bg-[#0021A5] rounded-xl px-4 py-2 flex-row items-center"
           >
             {saving ? (
               <ActivityIndicator size="small" color="white" />
@@ -167,13 +165,13 @@ export default function ProfileEditScreen() {
               {avatarPreview ? (
                 <Image source={{ uri: avatarPreview }} style={{ width: 96, height: 96, borderRadius: 48 }} />
               ) : (
-                <View className="w-24 h-24 rounded-full bg-orange-100 items-center justify-center">
-                  <Text className="text-3xl font-bold text-orange-500">
+                <View className="w-24 h-24 rounded-full bg-blue-100 items-center justify-center">
+                  <Text className="text-3xl font-bold text-[#0021A5]">
                     {(profileData.firstName?.[0] || "?").toUpperCase()}
                   </Text>
                 </View>
               )}
-              <View className="absolute bottom-0 right-0 bg-black rounded-full w-8 h-8 items-center justify-center">
+              <View className="absolute bottom-0 right-0 bg-[#0021A5] rounded-full w-8 h-8 items-center justify-center">
                 <Camera size={14} color="white" />
               </View>
             </TouchableOpacity>
@@ -249,7 +247,7 @@ export default function ProfileEditScreen() {
               {errors.bio && <Text className="text-red-500 text-xs mt-1">{errors.bio}</Text>}
             </View>
 
-            <TouchableOpacity onPress={handleSave} disabled={saving} className="bg-black rounded-2xl py-4 items-center">
+            <TouchableOpacity onPress={handleSave} disabled={saving} className="bg-[#0021A5] rounded-2xl py-4 items-center">
               {saving ? (
                 <ActivityIndicator color="white" />
               ) : (

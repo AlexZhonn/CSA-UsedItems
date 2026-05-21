@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useAuth, useUser } from "@clerk/clerk-expo";
+import { useAuthContext } from "../../context/AuthContext";
 import {
   View,
   Text,
@@ -74,8 +74,7 @@ const ListingCard = ({ item, activeTab, router }) => {
 };
 
 export default function ProfileScreen() {
-  const { getToken, signOut } = useAuth();
-  const { user } = useUser();
+  const { getToken, logout: signOut, user } = useAuthContext();
   const router = useRouter();
 
   const [profile, setProfile] = useState(null);
@@ -144,7 +143,7 @@ export default function ProfileScreen() {
   const handleSignOut = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Sign Out", style: "destructive", onPress: () => signOut() },
+      { text: "Sign Out", style: "destructive", onPress: async () => { await signOut(); } },
     ]);
   };
 
@@ -158,7 +157,7 @@ export default function ProfileScreen() {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-white items-center justify-center" style={{ flex: 1 }}>
-        <ActivityIndicator size="large" color="#FA4616" />
+        <ActivityIndicator size="large" color="#0021A5" />
         <Text className="mt-3 text-gray-400">Loading profile...</Text>
       </SafeAreaView>
     );
@@ -172,7 +171,7 @@ export default function ProfileScreen() {
         className="flex-1"
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#FA4616" />
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#0021A5" />
         }
       >
         {/* Header */}
@@ -194,17 +193,17 @@ export default function ProfileScreen() {
         {/* User Card */}
         <View className="mx-5 mt-3 mb-5 bg-gray-50 rounded-2xl p-5">
           <View className="flex-row items-center">
-            {user?.imageUrl ? (
+            {user?.avatar ? (
               <Image
-                source={{ uri: user.imageUrl }}
+                source={{ uri: user.avatar }}
                 style={{ width: 72, height: 72, borderRadius: 36 }}
               />
             ) : (
               <View
-                className="items-center justify-center bg-orange-100 rounded-full"
+                className="items-center justify-center bg-blue-100 rounded-full"
                 style={{ width: 72, height: 72 }}
               >
-                <Text className="text-3xl font-bold text-orange-500">
+                <Text className="text-3xl font-bold text-[#0021A5]">
                   {(user?.firstName?.[0] || "?").toUpperCase()}
                 </Text>
               </View>
@@ -214,7 +213,7 @@ export default function ProfileScreen() {
                 {user?.firstName} {user?.lastName}
               </Text>
               <Text className="text-gray-500 text-sm" numberOfLines={1}>
-                {user?.primaryEmailAddress?.emailAddress}
+                {user?.email}
               </Text>
               {profile?.rating != null && (
                 <View className="flex-row items-center mt-1">
@@ -278,7 +277,7 @@ export default function ProfileScreen() {
         <View className="px-5 pb-6">
           {tabLoading ? (
             <View className="py-12 items-center">
-              <ActivityIndicator color="#FA4616" />
+              <ActivityIndicator color="#0021A5" />
             </View>
           ) : tabItems.length === 0 ? (
             <View className="py-12 items-center">
@@ -295,7 +294,7 @@ export default function ProfileScreen() {
               {activeTab === "active" && (
                 <TouchableOpacity
                   onPress={() => router.push("/(tabs)/post")}
-                  className="mt-4 bg-black rounded-xl px-6 py-3"
+                  className="mt-4 bg-[#0021A5] rounded-xl px-6 py-3"
                 >
                   <Text className="text-white font-semibold">Post Something</Text>
                 </TouchableOpacity>

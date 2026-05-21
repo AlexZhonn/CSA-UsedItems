@@ -1,3 +1,5 @@
+import { getToken } from "../utils/auth";
+
 const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:3000";
 
 const authHeaders = (token, extra = {}) => ({
@@ -24,7 +26,11 @@ const request = async (method, path, { token, body, params, multipart } = {}) =>
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    const err = new Error(`HTTP ${res.status}: ${text}`);
+    let message = text;
+    try {
+      message = JSON.parse(text).message || text;
+    } catch {}
+    const err = new Error(message || `HTTP ${res.status}`);
     err.status = res.status;
     throw err;
   }
@@ -33,6 +39,23 @@ const request = async (method, path, { token, body, params, multipart } = {}) =>
   return text ? JSON.parse(text) : null;
 };
 
+// Helper to get stored token and pass it automatically
+const withToken = async (fn) => {
+  const token = await getToken();
+  return fn(token);
+};
+
+// ── Auth (public — no token needed) ──────────────────────────────────────────
+const login = (email, password) =>
+  request("POST", "/api/auth/login", { body: { email, password } });
+
+const register = (firstName, lastName, email, password) =>
+  request("POST", "/api/auth/register", { body: { firstName, lastName, email, password } });
+
+const verifyEmail = (email, code) =>
+  request("POST", "/api/auth/verify-email", { body: { email, code } });
+
+// ── Posts (public reads) ──────────────────────────────────────────────────────
 const getAllPosts = () => request("GET", "/api/posts");
 
 const getPostById = (postId, token) => request("GET", `/api/posts/${postId}`, { token });
@@ -40,8 +63,8 @@ const getPostById = (postId, token) => request("GET", `/api/posts/${postId}`, { 
 const getPostsByCategory = (category) =>
   request("GET", "/api/posts/post", { params: { category } });
 
-const getUserPostsByStatus = (status, clerkId) =>
-  request("GET", `/api/posts/userpost/${status}`, { params: { clerkId } });
+const getUserPostsByStatus = (status, userId) =>
+  request("GET", `/api/posts/userpost/${status}`, { params: { userId } });
 
 const updatePostImagesAndDetails = (token, postId, formData) =>
   request("PUT", `/api/posts/${postId}`, { token, body: formData, multipart: true });
@@ -55,25 +78,23 @@ const reportPost = (token, postId, payload) =>
 const markPostSoldDetailed = (token, postId, payload = {}) =>
   request("PATCH", `/api/users/post/${postId}`, { token, body: { status: "sold", ...payload } });
 
-const saveUser = (token, payload) =>
-  request("POST", "/api/users/save", { token, body: payload });
-
+// ── Users (auth required) ─────────────────────────────────────────────────────
 const getCurrentUserProfile = (token) =>
   request("GET", "/api/users/profile", { token });
 
 const updateCurrentUserProfile = (token, payload) =>
   request("PUT", "/api/users/profile", { token, body: payload });
 
-const getUserProfileByClerkId = (token, clerkId) =>
-  request("GET", `/api/users/profile/${clerkId}`, { token });
+const getUserProfileByUserId = (token, userId) =>
+  request("GET", `/api/users/profile/${userId}`, { token });
 
-const getUserActiveListings = (token, clerkId) => {
-  const path = clerkId ? `/api/users/post/active/${clerkId}` : "/api/users/post/active";
+const getUserActiveListings = (token, userId) => {
+  const path = userId ? `/api/users/post/active/${userId}` : "/api/users/post/active";
   return request("GET", path, { token });
 };
 
-const getUserSoldListings = (token, clerkId) => {
-  const path = clerkId ? `/api/users/post/sold/${clerkId}` : "/api/users/post/sold";
+const getUserSoldListings = (token, userId) => {
+  const path = userId ? `/api/users/post/sold/${userId}` : "/api/users/post/sold";
   return request("GET", path, { token });
 };
 
@@ -116,6 +137,11 @@ const sendConversationMessage = (token, conversationId, body) =>
 const getFeatureStats = () => request("GET", "/api/features/feature");
 
 const api = {
+  // auth
+  login,
+  register,
+  verifyEmail,
+  // posts
   getAllPosts,
   getPostById,
   getPostsByCategory,
@@ -124,10 +150,10 @@ const api = {
   deletePostById,
   reportPost,
   markPostSoldDetailed,
-  saveUser,
+  // users
   getCurrentUserProfile,
   updateCurrentUserProfile,
-  getUserProfileByClerkId,
+  getUserProfileByUserId,
   getUserActiveListings,
   getUserSoldListings,
   addPostToUserActive,

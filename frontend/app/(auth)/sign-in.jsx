@@ -1,4 +1,4 @@
-import { useSignIn } from "@clerk/clerk-expo";
+import { useAuthContext } from "../../context/AuthContext";
 import { useRouter, Link } from "expo-router";
 import { useState } from "react";
 import {
@@ -14,7 +14,7 @@ import {
 } from "react-native";
 
 export default function SignInPage() {
-  const { signIn, setActive, isLoaded } = useSignIn();
+  const { login } = useAuthContext();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -22,14 +22,12 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
 
   const handleSignIn = async () => {
-    if (!isLoaded) return;
     setLoading(true);
     try {
-      const result = await signIn.create({ identifier: email, password });
-      await setActive({ session: result.createdSessionId });
+      await login(email.trim(), password);
       router.replace("/(tabs)");
     } catch (err) {
-      Alert.alert("Sign In Failed", err.errors?.[0]?.message || "An error occurred.");
+      Alert.alert("Sign In Failed", err.message || "An error occurred.");
     } finally {
       setLoading(false);
     }
@@ -75,7 +73,7 @@ export default function SignInPage() {
             <TouchableOpacity
               onPress={handleSignIn}
               disabled={loading}
-              className="mt-6 bg-black rounded-xl py-4 items-center"
+              className="mt-6 bg-[#0021A5] rounded-xl py-4 items-center"
             >
               {loading ? (
                 <ActivityIndicator color="white" />

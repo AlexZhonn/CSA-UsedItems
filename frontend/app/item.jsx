@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuthContext } from "../context/AuthContext";
 import {
   View,
   Text,
@@ -20,7 +20,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 export default function ItemDetailScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { getToken, isSignedIn } = useAuth();
+  const { getToken, isSignedIn } = useAuthContext();
 
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -82,7 +82,7 @@ export default function ItemDetailScreen() {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-white items-center justify-center" style={{ flex: 1 }}>
-        <ActivityIndicator size="large" color="#FA4616" />
+        <ActivityIndicator size="large" color="#0021A5" />
         <Text className="mt-3 text-gray-400">Loading listing...</Text>
       </SafeAreaView>
     );
@@ -93,7 +93,7 @@ export default function ItemDetailScreen() {
       <SafeAreaView className="flex-1 bg-white items-center justify-center px-8" style={{ flex: 1 }}>
         <Text className="text-5xl mb-4">😕</Text>
         <Text className="text-lg font-bold text-black mb-2">Listing not found</Text>
-        <TouchableOpacity onPress={() => router.back()} className="mt-4 bg-black rounded-xl px-6 py-3">
+        <TouchableOpacity onPress={() => router.back()} className="mt-4 bg-[#0021A5] rounded-xl px-6 py-3">
           <Text className="text-white font-semibold">Go Back</Text>
         </TouchableOpacity>
       </SafeAreaView>
@@ -239,9 +239,9 @@ export default function ItemDetailScreen() {
                     </View>
                   )}
                 </View>
-                {item.seller.clerkId && (
+                {item.seller._id && (
                   <TouchableOpacity
-                    onPress={() => router.push(`/profile/${item.seller.clerkId}`)}
+                    onPress={() => router.push(`/profile/${item.seller._id}`)}
                     className="bg-white border border-gray-200 rounded-lg px-3 py-1.5"
                   >
                     <Text className="text-black text-xs font-semibold">View Profile</Text>
@@ -265,7 +265,7 @@ export default function ItemDetailScreen() {
         <TouchableOpacity
           onPress={handleContactSeller}
           disabled={contactingLoading}
-          className="flex-1 bg-black rounded-xl py-4 flex-row items-center justify-center"
+          className="flex-1 bg-[#0021A5] rounded-xl py-4 flex-row items-center justify-center"
         >
           {contactingLoading ? (
             <ActivityIndicator color="white" size="small" />

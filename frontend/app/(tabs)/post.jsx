@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuthContext } from "../../context/AuthContext";
 import {
   View,
   Text,
@@ -47,7 +47,7 @@ const MEETING_PREFS = [
 ];
 
 export default function PostScreen() {
-  const { getToken } = useAuth();
+  const { getToken } = useAuthContext();
   const router = useRouter();
 
   const [title, setTitle] = useState("");
@@ -178,7 +178,7 @@ export default function PostScreen() {
                   />
                   <TouchableOpacity
                     onPress={() => removeImage(idx)}
-                    className="absolute top-1 right-1 bg-black rounded-full p-0.5"
+                    className="absolute top-1 right-1 bg-[#0021A5] rounded-full p-0.5"
                   >
                     <X size={12} color="white" />
                   </TouchableOpacity>
@@ -248,7 +248,7 @@ export default function PostScreen() {
                   onPress={() => setCategory(cat)}
                   className={`px-4 py-2 rounded-full border ${
                     category === cat
-                      ? "bg-black border-black"
+                      ? "bg-[#0021A5] border-[#0021A5]"
                       : "bg-white border-gray-200"
                   }`}
                 >
@@ -275,7 +275,7 @@ export default function PostScreen() {
                   onPress={() => setCondition(cond)}
                   className={`px-4 py-2 rounded-full border ${
                     condition === cond
-                      ? "bg-black border-black"
+                      ? "bg-[#0021A5] border-[#0021A5]"
                       : "bg-white border-gray-200"
                   }`}
                 >
@@ -302,7 +302,7 @@ export default function PostScreen() {
                   onPress={() => setLocation(loc)}
                   className={`px-4 py-2 rounded-full border ${
                     location === loc
-                      ? "bg-black border-black"
+                      ? "bg-[#0021A5] border-[#0021A5]"
                       : "bg-white border-gray-200"
                   }`}
                 >
@@ -349,7 +349,7 @@ export default function PostScreen() {
           <TouchableOpacity
             onPress={handleSubmit}
             disabled={loading}
-            className="bg-black rounded-2xl py-4 items-center"
+            className="bg-[#0021A5] rounded-2xl py-4 items-center"
           >
             {loading ? (
               <ActivityIndicator color="white" />

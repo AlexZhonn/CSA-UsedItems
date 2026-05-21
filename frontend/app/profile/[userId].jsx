@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuthContext } from "../../context/AuthContext";
 import {
   View,
   Text,
@@ -18,8 +18,8 @@ import api from "../../service/api";
 export default function UserProfileScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { getToken } = useAuth();
-  const { clerkId } = params;
+  const { getToken } = useAuthContext();
+  const { userId } = params;
 
   const [profile, setProfile] = useState(null);
   const [listings, setListings] = useState([]);
@@ -30,8 +30,8 @@ export default function UserProfileScreen() {
     try {
       const token = await getToken();
       const [profileData, listingsData] = await Promise.all([
-        api.getUserProfileByClerkId(token, clerkId),
-        api.getUserActiveListings(token, clerkId),
+        api.getUserProfileByUserId(token, userId),
+        api.getUserActiveListings(token, userId),
       ]);
       setProfile(profileData);
       setListings(Array.isArray(listingsData) ? listingsData : []);
@@ -45,7 +45,7 @@ export default function UserProfileScreen() {
 
   useEffect(() => {
     fetchData();
-  }, [clerkId]);
+  }, [userId]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -57,7 +57,7 @@ export default function UserProfileScreen() {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-white items-center justify-center" style={{ flex: 1 }}>
-        <ActivityIndicator size="large" color="#FA4616" />
+        <ActivityIndicator size="large" color="#0021A5" />
         <Text className="mt-3 text-gray-400">Loading profile...</Text>
       </SafeAreaView>
     );
@@ -68,7 +68,7 @@ export default function UserProfileScreen() {
       <SafeAreaView className="flex-1 bg-white items-center justify-center px-8" style={{ flex: 1 }}>
         <Text className="text-5xl mb-4">😕</Text>
         <Text className="text-lg font-bold text-black mb-2">User not found</Text>
-        <TouchableOpacity onPress={() => router.back()} className="mt-4 bg-black rounded-xl px-6 py-3">
+        <TouchableOpacity onPress={() => router.back()} className="mt-4 bg-[#0021A5] rounded-xl px-6 py-3">
           <Text className="text-white font-semibold">Go Back</Text>
         </TouchableOpacity>
       </SafeAreaView>
@@ -81,7 +81,7 @@ export default function UserProfileScreen() {
         className="flex-1"
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#FA4616" />
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#0021A5" />
         }
       >
         {/* Header */}
@@ -102,10 +102,10 @@ export default function UserProfileScreen() {
               />
             ) : (
               <View
-                className="items-center justify-center bg-orange-100 rounded-full"
+                className="items-center justify-center bg-blue-100 rounded-full"
                 style={{ width: 72, height: 72 }}
               >
-                <Text className="text-3xl font-bold text-orange-500">
+                <Text className="text-3xl font-bold text-[#0021A5]">
                   {(profile.firstName?.[0] || "?").toUpperCase()}
                 </Text>
               </View>

@@ -138,7 +138,7 @@ export default function ProfileEditScreen() {
           <TouchableOpacity
             onPress={handleSave}
             disabled={saving}
-            className="bg-[#0021A5] rounded-xl px-4 py-2 flex-row items-center"
+            className="bg-primary rounded-xl px-4 py-2 flex-row items-center"
           >
             {saving ? (
               <ActivityIndicator size="small" color="white" />
@@ -166,12 +166,12 @@ export default function ProfileEditScreen() {
                 <Image source={{ uri: avatarPreview }} style={{ width: 96, height: 96, borderRadius: 48 }} />
               ) : (
                 <View className="w-24 h-24 rounded-full bg-blue-100 items-center justify-center">
-                  <Text className="text-3xl font-bold text-[#0021A5]">
+                  <Text className="text-3xl font-bold text-primary">
                     {(profileData.firstName?.[0] || "?").toUpperCase()}
                   </Text>
                 </View>
               )}
-              <View className="absolute bottom-0 right-0 bg-[#0021A5] rounded-full w-8 h-8 items-center justify-center">
+              <View className="absolute bottom-0 right-0 bg-primary rounded-full w-8 h-8 items-center justify-center">
                 <Camera size={14} color="white" />
               </View>
             </TouchableOpacity>
@@ -247,7 +247,7 @@ export default function ProfileEditScreen() {
               {errors.bio && <Text className="text-red-500 text-xs mt-1">{errors.bio}</Text>}
             </View>
 
-            <TouchableOpacity onPress={handleSave} disabled={saving} className="bg-[#0021A5] rounded-2xl py-4 items-center">
+            <TouchableOpacity onPress={handleSave} disabled={saving} className="bg-primary rounded-2xl py-4 items-center">
               {saving ? (
                 <ActivityIndicator color="white" />
               ) : (

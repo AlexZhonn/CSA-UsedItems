@@ -45,7 +45,7 @@ const ListingCard = ({ item, activeTab, router }) => {
         <Text className="text-black font-semibold text-sm" numberOfLines={2}>
           {item?.title || "Untitled"}
         </Text>
-        <Text className="text-orange-500 font-bold text-base mt-0.5">
+        <Text className="text-secondary font-bold text-base mt-0.5">
           {formatPrice(item?.price)}
         </Text>
         {item?.condition && (
@@ -203,7 +203,7 @@ export default function ProfileScreen() {
                 className="items-center justify-center bg-blue-100 rounded-full"
                 style={{ width: 72, height: 72 }}
               >
-                <Text className="text-3xl font-bold text-[#0021A5]">
+                <Text className="text-3xl font-bold text-primary">
                   {(user?.firstName?.[0] || "?").toUpperCase()}
                 </Text>
               </View>
@@ -260,7 +260,7 @@ export default function ProfileScreen() {
                   isActive ? "bg-white shadow-sm" : ""
                 }`}
               >
-                <Icon size={14} color={isActive ? "#FA4616" : "#9ca3af"} />
+                <Icon size={14} color={isActive ? "#0021A5" : "#9ca3af"} />
                 <Text
                   className={`ml-1.5 text-sm font-semibold ${
                     isActive ? "text-black" : "text-gray-400"
@@ -294,7 +294,7 @@ export default function ProfileScreen() {
               {activeTab === "active" && (
                 <TouchableOpacity
                   onPress={() => router.push("/(tabs)/post")}
-                  className="mt-4 bg-[#0021A5] rounded-xl px-6 py-3"
+                  className="mt-4 bg-primary rounded-xl px-6 py-3"
                 >
                   <Text className="text-white font-semibold">Post Something</Text>
                 </TouchableOpacity>

@@ -247,7 +247,7 @@ export default function MarketScreen() {
               onPress={() => setSelectedCategory(cat)}
               className={`mr-2 px-4 py-2 rounded-full border ${
                 selectedCategory === cat
-                  ? "bg-[#0021A5] border-[#0021A5]"
+                  ? "bg-primary border-primary"
                   : "bg-white border-gray-200"
               }`}
             >
@@ -276,7 +276,7 @@ export default function MarketScreen() {
                 onPress={() => setPriceRange(pr.value)}
                 className={`mr-2 px-3 py-1.5 rounded-full border ${
                   priceRange === pr.value
-                    ? "bg-orange-500 border-orange-500"
+                    ? "bg-secondary border-secondary"
                     : "bg-white border-gray-200"
                 }`}
               >
@@ -297,7 +297,7 @@ export default function MarketScreen() {
               setShowMoreFilters(true);
             }}
             className={`flex-row items-center px-3 py-1.5 rounded-full border ${
-              hasActiveFilters ? "bg-[#0021A5] border-[#0021A5]" : "bg-white border-gray-200"
+              hasActiveFilters ? "bg-primary border-primary" : "bg-white border-gray-200"
             }`}
           >
             <SlidersHorizontal
@@ -382,7 +382,7 @@ export default function MarketScreen() {
                     }
                     className={`px-3 py-2 rounded-full border ${
                       pendingFilters.sortBy === opt.value
-                        ? "bg-[#0021A5] border-[#0021A5]"
+                        ? "bg-primary border-primary"
                         : "bg-white border-gray-200"
                     }`}
                   >
@@ -410,7 +410,7 @@ export default function MarketScreen() {
                     }
                     className={`px-3 py-2 rounded-full border ${
                       pendingFilters.condition === cond
-                        ? "bg-[#0021A5] border-[#0021A5]"
+                        ? "bg-primary border-primary"
                         : "bg-white border-gray-200"
                     }`}
                   >
@@ -438,7 +438,7 @@ export default function MarketScreen() {
                     }
                     className={`px-3 py-2 rounded-full border ${
                       pendingFilters.location === loc
-                        ? "bg-[#0021A5] border-[#0021A5]"
+                        ? "bg-primary border-primary"
                         : "bg-white border-gray-200"
                     }`}
                   >

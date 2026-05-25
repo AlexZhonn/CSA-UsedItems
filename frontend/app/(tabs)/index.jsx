@@ -65,15 +65,15 @@ export default function HomeScreen() {
           <View className="flex-row gap-3">
             <TouchableOpacity
               onPress={() => router.push("/(tabs)/market")}
-              className="bg-black rounded-full px-6 py-3"
+              className="bg-primary rounded-full px-6 py-3"
             >
               <Text className="text-white font-semibold text-base">Browse Market</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => router.push("/(tabs)/post")}
-              className="border-2 border-gray-200 rounded-full px-6 py-3"
+              className="border-2 border-primary rounded-full px-6 py-3"
             >
-              <Text className="text-black font-semibold text-base">Sell Item</Text>
+              <Text className="text-primary font-semibold text-base">Sell Item</Text>
             </TouchableOpacity>
           </View>
         </View>

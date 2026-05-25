@@ -62,7 +62,7 @@ export default function ItemCard({ item, isFavorite, onToggleFavorite }) {
         <Text className="text-black font-semibold text-sm" numberOfLines={2}>
           {item?.title || "Untitled"}
         </Text>
-        <Text className="text-orange-500 font-bold text-base mt-1">
+        <Text className="text-secondary font-bold text-base mt-1">
           {formatPrice(item?.price)}
         </Text>
         <View className="flex-row items-center justify-between mt-1">

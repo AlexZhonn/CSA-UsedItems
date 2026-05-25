@@ -93,7 +93,7 @@ export default function ItemDetailScreen() {
       <SafeAreaView className="flex-1 bg-white items-center justify-center px-8" style={{ flex: 1 }}>
         <Text className="text-5xl mb-4">😕</Text>
         <Text className="text-lg font-bold text-black mb-2">Listing not found</Text>
-        <TouchableOpacity onPress={() => router.back()} className="mt-4 bg-[#0021A5] rounded-xl px-6 py-3">
+        <TouchableOpacity onPress={() => router.back()} className="mt-4 bg-primary rounded-xl px-6 py-3">
           <Text className="text-white font-semibold">Go Back</Text>
         </TouchableOpacity>
       </SafeAreaView>
@@ -169,7 +169,7 @@ export default function ItemDetailScreen() {
             <Text className="text-2xl font-black text-black flex-1 mr-3" numberOfLines={3}>
               {item.title}
             </Text>
-            <Text className="text-2xl font-black text-orange-500">
+            <Text className="text-2xl font-black text-secondary">
               {formatPrice(item.price)}
             </Text>
           </View>
@@ -183,7 +183,7 @@ export default function ItemDetailScreen() {
             )}
             {item.category && (
               <View className="bg-orange-50 border border-orange-100 rounded-full px-3 py-1">
-                <Text className="text-orange-600 text-xs font-medium">{item.category}</Text>
+                <Text className="text-secondary text-xs font-medium">{item.category}</Text>
               </View>
             )}
           </View>
@@ -221,7 +221,7 @@ export default function ItemDetailScreen() {
                   />
                 ) : (
                   <View className="w-11 h-11 rounded-full bg-orange-100 items-center justify-center">
-                    <Text className="text-orange-500 font-bold text-base">
+                    <Text className="text-secondary font-bold text-base">
                       {(item.seller.firstName?.[0] || "?").toUpperCase()}
                     </Text>
                   </View>
@@ -265,7 +265,7 @@ export default function ItemDetailScreen() {
         <TouchableOpacity
           onPress={handleContactSeller}
           disabled={contactingLoading}
-          className="flex-1 bg-[#0021A5] rounded-xl py-4 flex-row items-center justify-center"
+          className="flex-1 bg-primary rounded-xl py-4 flex-row items-center justify-center"
         >
           {contactingLoading ? (
             <ActivityIndicator color="white" size="small" />

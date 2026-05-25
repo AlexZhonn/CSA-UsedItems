@@ -152,7 +152,7 @@ export default function MessagesScreen() {
             <Text className="text-gray-400 text-xs">{formatTime(conv.updatedAt)}</Text>
           </View>
           {conv.post?.title ? (
-            <Text className="text-orange-500 text-xs mb-0.5" numberOfLines={1}>
+            <Text className="text-secondary text-xs mb-0.5" numberOfLines={1}>
               {conv.post.title}
             </Text>
           ) : null}
@@ -166,7 +166,7 @@ export default function MessagesScreen() {
         </View>
 
         {conv.unreadCount > 0 && (
-          <View className="ml-2 bg-orange-500 rounded-full w-5 h-5 items-center justify-center">
+          <View className="ml-2 bg-secondary rounded-full w-5 h-5 items-center justify-center">
             <Text className="text-white text-xs font-bold">{conv.unreadCount}</Text>
           </View>
         )}
@@ -183,7 +183,7 @@ export default function MessagesScreen() {
       >
         <View
           className={`rounded-2xl px-4 py-2.5 ${
-            mine ? "bg-[#0021A5]" : "bg-gray-100"
+            mine ? "bg-primary" : "bg-gray-100"
           }`}
           style={{ maxWidth: "75%" }}
         >
@@ -254,7 +254,7 @@ export default function MessagesScreen() {
                     "User"}
                 </Text>
                 {selectedConversation?.post?.title ? (
-                  <Text className="text-orange-500 text-xs" numberOfLines={1}>
+                  <Text className="text-secondary text-xs" numberOfLines={1}>
                     {selectedConversation.post.title}
                   </Text>
                 ) : null}
@@ -310,7 +310,7 @@ export default function MessagesScreen() {
                 onPress={handleSend}
                 disabled={sending || !messageText.trim()}
                 className={`w-10 h-10 rounded-full items-center justify-center ${
-                  messageText.trim() && !sending ? "bg-[#0021A5]" : "bg-gray-200"
+                  messageText.trim() && !sending ? "bg-primary" : "bg-gray-200"
                 }`}
               >
                 {sending ? (

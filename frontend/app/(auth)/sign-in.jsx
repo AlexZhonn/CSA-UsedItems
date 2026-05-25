@@ -73,7 +73,7 @@ export default function SignInPage() {
             <TouchableOpacity
               onPress={handleSignIn}
               disabled={loading}
-              className="mt-6 bg-[#0021A5] rounded-xl py-4 items-center"
+              className="mt-6 bg-primary rounded-xl py-4 items-center"
             >
               {loading ? (
                 <ActivityIndicator color="white" />
@@ -85,7 +85,7 @@ export default function SignInPage() {
             <View className="flex-row justify-center mt-4">
               <Text className="text-gray-600">Don't have an account? </Text>
               <Link href="/(auth)/sign-up">
-                <Text className="text-black font-semibold">Sign Up</Text>
+                <Text className="text-primary font-semibold">Sign Up</Text>
               </Link>
             </View>
           </View>

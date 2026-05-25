@@ -65,7 +65,7 @@ export default function SignUpPage() {
             maxLength={6}
           />
 
-          <TouchableOpacity onPress={handleVerify} disabled={loading} className="bg-[#0021A5] rounded-xl py-4 items-center">
+          <TouchableOpacity onPress={handleVerify} disabled={loading} className="bg-primary rounded-xl py-4 items-center">
             {loading ? <ActivityIndicator color="white" /> : <Text className="text-white font-semibold text-lg">Verify Email</Text>}
           </TouchableOpacity>
         </View>
@@ -128,14 +128,14 @@ export default function SignUpPage() {
               />
             </View>
 
-            <TouchableOpacity onPress={handleSignUp} disabled={loading} className="mt-6 bg-[#0021A5] rounded-xl py-4 items-center">
+            <TouchableOpacity onPress={handleSignUp} disabled={loading} className="mt-6 bg-primary rounded-xl py-4 items-center">
               {loading ? <ActivityIndicator color="white" /> : <Text className="text-white font-semibold text-lg">Create Account</Text>}
             </TouchableOpacity>
 
             <View className="flex-row justify-center mt-4">
               <Text className="text-gray-600">Already have an account? </Text>
               <Link href="/(auth)/sign-in">
-                <Text className="text-black font-semibold">Sign In</Text>
+                <Text className="text-primary font-semibold">Sign In</Text>
               </Link>
             </View>
           </View>

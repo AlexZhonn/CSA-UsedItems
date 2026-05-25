@@ -9,6 +9,8 @@ module.exports = {
           orange: "#FA4616",
           blue: "#0021A5",
         },
+        primary: "#0021A5",
+        secondary: "#FA4616",
       },
     },
   },

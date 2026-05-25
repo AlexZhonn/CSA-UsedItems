@@ -178,7 +178,7 @@ export default function PostScreen() {
                   />
                   <TouchableOpacity
                     onPress={() => removeImage(idx)}
-                    className="absolute top-1 right-1 bg-[#0021A5] rounded-full p-0.5"
+                    className="absolute top-1 right-1 bg-primary rounded-full p-0.5"
                   >
                     <X size={12} color="white" />
                   </TouchableOpacity>
@@ -248,7 +248,7 @@ export default function PostScreen() {
                   onPress={() => setCategory(cat)}
                   className={`px-4 py-2 rounded-full border ${
                     category === cat
-                      ? "bg-[#0021A5] border-[#0021A5]"
+                      ? "bg-primary border-primary"
                       : "bg-white border-gray-200"
                   }`}
                 >
@@ -275,7 +275,7 @@ export default function PostScreen() {
                   onPress={() => setCondition(cond)}
                   className={`px-4 py-2 rounded-full border ${
                     condition === cond
-                      ? "bg-[#0021A5] border-[#0021A5]"
+                      ? "bg-primary border-primary"
                       : "bg-white border-gray-200"
                   }`}
                 >
@@ -302,7 +302,7 @@ export default function PostScreen() {
                   onPress={() => setLocation(loc)}
                   className={`px-4 py-2 rounded-full border ${
                     location === loc
-                      ? "bg-[#0021A5] border-[#0021A5]"
+                      ? "bg-primary border-primary"
                       : "bg-white border-gray-200"
                   }`}
                 >
@@ -329,7 +329,7 @@ export default function PostScreen() {
                   onPress={() => setMeetingPref(opt.value)}
                   className={`flex-1 py-3 rounded-xl border items-center ${
                     meetingPref === opt.value
-                      ? "bg-orange-500 border-orange-500"
+                      ? "bg-secondary border-secondary"
                       : "bg-white border-gray-200"
                   }`}
                 >
@@ -349,7 +349,7 @@ export default function PostScreen() {
           <TouchableOpacity
             onPress={handleSubmit}
             disabled={loading}
-            className="bg-[#0021A5] rounded-2xl py-4 items-center"
+            className="bg-primary rounded-2xl py-4 items-center"
           >
             {loading ? (
               <ActivityIndicator color="white" />

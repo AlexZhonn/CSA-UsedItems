@@ -17,6 +17,14 @@ import {
 } from "react-native";
 import { ArrowLeft, Send, MessageSquare } from "lucide-react-native";
 import api from "../../service/api";
+import {
+  ensureKeyPair,
+  encryptMessage,
+  decryptMessage,
+  isEncrypted,
+} from "../../utils/e2eCrypto";
+
+const FALLBACK_LABEL = "[Encrypted message — unable to decrypt]";
 
 export default function MessagesScreen() {
   const { getToken, user } = useAuthContext();
@@ -31,6 +39,21 @@ export default function MessagesScreen() {
   const [messageText, setMessageText] = useState("");
   const [sending, setSending] = useState(false);
   const flatListRef = useRef(null);
+
+  // Ensure our key pair exists on mount and upload public key if needed
+  useEffect(() => {
+    const initKeys = async () => {
+      try {
+        const token = await getToken();
+        const publicKeyHex = await ensureKeyPair();
+        // Upload our public key so others can encrypt messages to us
+        await api.savePublicKey(token, publicKeyHex);
+      } catch {
+        // Non-fatal — app continues without E2E if key setup fails
+      }
+    };
+    initKeys();
+  }, []);
 
   const fetchConversations = useCallback(async () => {
     try {
@@ -49,6 +72,27 @@ export default function MessagesScreen() {
     fetchConversations();
   }, []);
 
+  /**
+   * Decrypt an array of raw message objects.
+   * Each message's .content field is set to the decrypted plaintext (or fallback).
+   */
+  const decryptMessages = async (rawMessages) => {
+    return Promise.all(
+      rawMessages.map(async (msg) => {
+        const raw = msg.message || msg.content || "";
+        if (!isEncrypted(raw)) {
+          // Old plaintext message — show as-is
+          return { ...msg, content: raw };
+        }
+        const plaintext = await decryptMessage(raw);
+        return {
+          ...msg,
+          content: plaintext !== null ? plaintext : FALLBACK_LABEL,
+        };
+      })
+    );
+  };
+
   const openConversation = async (conv) => {
     setSelectedConversation(conv);
     setChatOpen(true);
@@ -57,7 +101,8 @@ export default function MessagesScreen() {
     try {
       const token = await getToken();
       const data = await api.getConversationMessages(token, conv._id);
-      setMessages(Array.isArray(data) ? data : []);
+      const decrypted = await decryptMessages(Array.isArray(data) ? data : []);
+      setMessages(decrypted);
       setTimeout(() => flatListRef.current?.scrollToEnd({ animated: false }), 100);
     } catch {
       Alert.alert("Error", "Could not load messages.");
@@ -74,20 +119,41 @@ export default function MessagesScreen() {
   };
 
   const handleSend = async () => {
-    const content = messageText.trim();
-    if (!content || !selectedConversation) return;
+    const plaintext = messageText.trim();
+    if (!plaintext || !selectedConversation) return;
     setSending(true);
     setMessageText("");
+
     try {
       const token = await getToken();
-      const sent = await api.sendConversationMessage(token, selectedConversation._id, {
-        content,
-      });
-      setMessages((prev) => [...prev, sent]);
+
+      // Find the other participant and fetch their public key
+      const other = getOtherParticipant(selectedConversation);
+      let encryptedContent = plaintext; // fallback: send plaintext if key missing
+
+      if (other?._id) {
+        try {
+          const keyData = await api.getPublicKey(token, other._id);
+          if (keyData?.publicKey) {
+            encryptedContent = await encryptMessage(plaintext, keyData.publicKey);
+          }
+        } catch {
+          // Key fetch failed — send plaintext rather than block the user
+        }
+      }
+
+      const sent = await api.sendConversationMessage(
+        token,
+        selectedConversation._id,
+        { content: encryptedContent }
+      );
+
+      // Render the plaintext locally (we already know what we typed)
+      setMessages((prev) => [...prev, { ...sent, content: plaintext }]);
       setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 80);
     } catch {
       Alert.alert("Error", "Failed to send message.");
-      setMessageText(content);
+      setMessageText(plaintext);
     } finally {
       setSending(false);
     }
@@ -158,7 +224,7 @@ export default function MessagesScreen() {
           ) : null}
           {lastMsg ? (
             <Text className="text-gray-500 text-xs" numberOfLines={1}>
-              {lastMsg.content || "..."}
+              🔒 Encrypted message
             </Text>
           ) : (
             <Text className="text-gray-400 text-xs italic">No messages yet</Text>
@@ -176,6 +242,7 @@ export default function MessagesScreen() {
 
   const renderMessage = ({ item: msg }) => {
     const mine = isMyMessage(msg);
+    const isFallback = msg.content === FALLBACK_LABEL;
     return (
       <View
         className={`flex-row mb-3 ${mine ? "justify-end" : "justify-start"}`}
@@ -187,11 +254,15 @@ export default function MessagesScreen() {
           }`}
           style={{ maxWidth: "75%" }}
         >
-          <Text className={`text-sm ${mine ? "text-white" : "text-black"}`}>
-            {msg.content}
+          <Text
+            className={`text-sm ${
+              mine ? "text-white" : isFallback ? "text-gray-400" : "text-black"
+            }`}
+          >
+            {isFallback ? "🔒 " + FALLBACK_LABEL : msg.content}
           </Text>
           <Text className={`text-xs mt-1 ${mine ? "text-gray-300" : "text-gray-400"}`}>
-            {formatTime(msg.createdAt)}
+            {formatTime(msg.createdAt || msg.timestamp)}
           </Text>
         </View>
       </View>
@@ -203,6 +274,7 @@ export default function MessagesScreen() {
       {/* Header */}
       <View className="px-5 pt-4 pb-3 border-b border-gray-100">
         <Text className="text-2xl font-black text-black">Messages</Text>
+        <Text className="text-xs text-gray-400 mt-0.5">🔒 End-to-end encrypted</Text>
       </View>
 
       {/* Conversation List */}

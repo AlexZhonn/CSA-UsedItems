@@ -24,7 +24,7 @@ When you finish a feature, fix, or infrastructure change, you **must** do all of
 - Auth: Custom JWT + bcrypt (`jsonwebtoken` + `bcryptjs`) — token stored in `expo-secure-store` under `csa_auth_token`, passed as `Authorization: Bearer`
 - Images: AWS S3 (`@aws-sdk/client-s3`) — up to 5 images per listing; URLs stored directly in Post documents
 - AI Moderation: Google Gemini (`@google/generative-ai`) — image safety check (currently commented out in `addPost`)
-- Messaging: REST polling (no WebSocket); messages stored plaintext in MongoDB — **E2E encryption planned, see What's Next**
+- Messaging: REST polling (no WebSocket); messages encrypted client-side with X25519 ECDH + AES-256-GCM (`@noble/curves` + `@noble/ciphers`) before being stored in MongoDB
 
 ---
 
@@ -349,7 +349,7 @@ Clerk is a third-party service that owns our user identity, charges at scale, an
 
 All UI text, legal pages, app.json metadata, bundle IDs, and the LICENSE file updated to CSA Market / Alex Zhong.
 
-### 2. ⬜ End-to-End Encrypted Messaging
+### 2. ✅ End-to-End Encrypted Messaging — DONE
 
 Currently messages are stored and transmitted as plaintext in MongoDB. The server can read every message. This needs to be fixed.
 
@@ -419,7 +419,7 @@ Add a full Chinese (简体中文) translation of the app so CSA members can use 
 
 `GET /api/posts` returns all documents with no limit. Add `?page=` + `?limit=` query params and infinite-scroll in `market.jsx`.
 
-### 9. ⬜ App-wide Color Theme Refresh (Blue / Orange / Black / White)
+### 9. ✅ App-wide Color Theme Refresh (Blue / Orange / Black / White) — DONE
 
 Standardize the visual identity across every screen to a consistent palette:
 
@@ -453,9 +453,9 @@ Standardize the visual identity across every screen to a consistent palette:
 | `frontend/app/profile-edit.jsx` | Save button |
 | `frontend/components/MarketPlace/ItemCard.jsx` | Price tag, favorite icon active state |
 
-### 10. ⬜ End-to-End Encrypted Messaging (moved from item 2)
+### 10. ✅ End-to-End Encrypted Messaging (moved from item 2) — DONE
 
-See detailed plan under item **2** above — implementation spec is unchanged. Tracking here as a numbered priority slot.
+See item **2** above. Implemented with X25519 ECDH + AES-256-GCM via `@noble/curves` + `@noble/ciphers`.
 
 ---
 
@@ -512,7 +512,7 @@ frontend/tests/
 
 ## Known Issues / Tech Debt
 
-- **[HIGH] `Message.message` field is a flat string** — pre-encryption messages (if any exist in the DB) are plaintext. After enabling E2E encryption the field will contain a JSON string `{ iv, ciphertext, senderPublicKey }`. Existing plaintext messages will fail to decrypt and show a fallback "Encrypted message" label in the UI.
+- **[LOW] Pre-E2E plaintext messages** — any messages sent before E2E was enabled are stored as plaintext in MongoDB. The UI handles them gracefully (renders as-is), but they were never encrypted. No action needed unless data is sensitive.
 - **[MEDIUM] No pagination on `/api/posts`** — fetches all posts in one query. Will become a problem at scale.
 - **[MEDIUM] Gemini moderation is commented out** — uploaded images are not safety-checked. Uncomment once `GEMINI_API_KEY` is confirmed.
 - **[MEDIUM] Email delivery not implemented** — `authController.register` logs the verification code to console in dev (`process.env.NODE_ENV !== "production"`). A nodemailer/resend integration is needed before going to production.

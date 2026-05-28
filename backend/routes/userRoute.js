@@ -17,6 +17,8 @@ import {
   getMe,
   updateUser,
   updatePost,
+  savePublicKey,
+  getPublicKey,
 } from "../controllers/userController.js";
 import upload from "../middleware/upload.js";
 
@@ -53,6 +55,10 @@ router.post("/post/add", upload.array("images", 5), addPost);
 router.put("/:id", upload.array("images", 5), updatePost);
 router.delete("/post/:id", deletePost);
 router.patch("/post/:id", activeToSold);
+
+// public keys (E2E encryption)
+router.post("/public-key", savePublicKey);
+router.get("/public-key/:userId", getPublicKey);
 
 // reviews
 router.get("/reviews", getReviews);

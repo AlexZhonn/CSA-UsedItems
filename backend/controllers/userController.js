@@ -558,6 +558,31 @@ export const getMe = async (req, res) => {
   }
 };
 
+export const savePublicKey = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { publicKey } = req.body;
+    if (!publicKey || typeof publicKey !== "string") {
+      return res.status(400).json({ message: "publicKey is required" });
+    }
+    await User.findByIdAndUpdate(userId, { publicKey });
+    res.status(200).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const getPublicKey = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId).select("publicKey");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.status(200).json({ publicKey: user.publicKey || "" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 export const updateUser = async (req, res) => {
   try {
     const userId = req.userId;

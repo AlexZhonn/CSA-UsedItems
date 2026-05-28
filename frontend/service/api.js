@@ -136,6 +136,13 @@ const sendConversationMessage = (token, conversationId, body) =>
 
 const getFeatureStats = () => request("GET", "/api/features/feature");
 
+// ── E2E Public Keys ───────────────────────────────────────────────────────────
+const savePublicKey = (token, publicKey) =>
+  request("POST", "/api/users/public-key", { token, body: { publicKey } });
+
+const getPublicKey = (token, userId) =>
+  request("GET", `/api/users/public-key/${userId}`, { token });
+
 const api = {
   // auth
   login,
@@ -169,6 +176,8 @@ const api = {
   getConversationMessages,
   sendConversationMessage,
   getFeatureStats,
+  savePublicKey,
+  getPublicKey,
 };
 
 export default api;
